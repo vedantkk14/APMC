@@ -1,0 +1,1888 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Lot Weight Processing - APMC Terminal</title>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;700;900&family=Work+Sans:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+
+    <style>
+        /* CSS Variables */
+        :root {
+            --background: #f8f9fa;
+            --surface: #f8f9fa;
+            --tertiary-container: #a93802;
+            --on-secondary-container: #526772;
+            --error: #ba1a1a;
+            --on-primary: #ffffff;
+            --primary: #004493;
+            --on-tertiary-container: #ffcebd;
+            --primary-fixed: #d8e2ff;
+            --on-surface: #191c1d;
+            --surface-container: #edeeef;
+            --surface-container-high: #e7e8e9;
+            --primary-container: #235cb2;
+            --on-primary-fixed: #001a41;
+            --surface-container-lowest: #ffffff;
+            --surface-container-highest: #e1e3e4;
+            --outline-variant: #c3c6d6;
+            --secondary: #4c616c;
+            --on-background: #191c1d;
+            --inverse-surface: #2e3132;
+            --primary-fixed-dim: #acc7ff;
+            --outline: #737785;
+            --surface-container-low: #f3f4f5;
+            --tertiary: #822800;
+            --on-primary-container: #c9d9ff;
+            --on-surface-variant: #424654;
+
+            /* Standard colors */
+            --blue-50: #eff6ff;
+            --blue-200: #bfdbfe;
+            --blue-600: #2563eb;
+            --blue-700: #1d4ed8;
+            --blue-800: #1e40af;
+            --blue-900: #1e3a8a;
+            --slate-50: #f8fafc;
+            --slate-100: #f1f5f9;
+            --slate-200: #e2e8f0;
+            --slate-400: #94a3b8;
+            --slate-500: #64748b;
+            --slate-600: #475569;
+            --green-100: #dcfce3;
+            --green-500: #22c55e;
+            --green-700: #15803d;
+            --amber-100: #fef3c7;
+            --amber-500: #f59e0b;
+            --amber-700: #b45309;
+            --orange-700: #b43d09;
+        }
+
+        /* Base Resets & Typography */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--surface);
+            font-family: 'Work Sans', sans-serif;
+            color: var(--on-surface);
+            -webkit-font-smoothing: antialiased;
+            padding-bottom: 4rem;
+        }
+
+        @media (min-width: 768px) {
+            body {
+                padding-bottom: 0;
+            }
+        }
+
+        .headline {
+            font-family: 'Public Sans', sans-serif;
+        }
+
+        .label {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .body-font {
+            font-family: 'Work Sans', sans-serif;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-family: inherit;
+            outline: none;
+        }
+
+        input,
+        select {
+            font-family: inherit;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Top Navbar */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 0 1.5rem;
+            height: 4rem;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background-color: #ffffff;
+            border-bottom: 1px solid var(--slate-200);
+        }
+
+        @media (max-width: 480px) {
+            .top-nav {
+                padding: 0 0.75rem;
+                height: 3.5rem;
+            }
+        }
+
+        .nav-brand {
+            font-size: 1.25rem;
+            font-weight: 900;
+            letter-spacing: -0.025em;
+            color: var(--blue-900);
+        }
+
+        @media (max-width: 480px) {
+            .nav-brand {
+                font-size: 1rem;
+            }
+        }
+
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 480px) {
+            .nav-controls {
+                gap: 0.5rem;
+            }
+        }
+
+        .lang-toggle {
+            display: flex;
+            align-items: center;
+            background-color: var(--surface-container);
+            border-radius: 9999px;
+            padding: 0.25rem;
+        }
+
+        .lang-btn {
+            padding: 0.25rem 1rem;
+            font-size: 0.75rem;
+            border-radius: 9999px;
+        }
+
+        @media (max-width: 480px) {
+            .lang-btn {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.625rem;
+            }
+        }
+
+        .lang-btn.active {
+            font-weight: 700;
+            background-color: #ffffff;
+            color: var(--primary);
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        .lang-btn.inactive {
+            font-weight: 500;
+            color: var(--on-surface-variant);
+        }
+
+        .icon-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .icon-btn {
+            padding: 0.5rem;
+            color: var(--slate-500);
+            border-radius: 9999px;
+            transition: background-color 0.2s;
+        }
+
+        .icon-btn:hover {
+            background-color: var(--slate-50);
+        }
+
+        /* App Layout Wrapper */
+        .app-wrapper {
+            display: flex;
+            min-height: calc(100vh - 4rem);
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            display: none;
+            flex-direction: column;
+            height: calc(100vh - 4rem);
+            width: 256px;
+            border-right: 1px solid var(--slate-200);
+            background-color: var(--slate-50);
+            flex-shrink: 0;
+            position: fixed;
+            left: 0;
+            top: 4rem;
+            z-index: 40;
+        }
+
+        @media (min-width: 768px) {
+            .sidebar {
+                display: flex;
+            }
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+        }
+
+        .sidebar-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--blue-800);
+            font-family: 'Public Sans', sans-serif;
+        }
+
+        .sidebar-subtitle {
+            font-size: 0.75rem;
+            font-family: 'Inter', sans-serif;
+            color: var(--on-surface-variant);
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 0 0.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .sidebar-link {
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-radius: 0.375rem;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .sidebar-link.active {
+            background-color: var(--blue-600);
+            color: #ffffff;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        .sidebar-link.inactive {
+            color: var(--slate-600);
+            margin: 0 0.5rem;
+        }
+
+        .sidebar-link.inactive:hover {
+            background-color: var(--slate-200);
+        }
+
+        .sidebar-footer {
+            padding: 1rem;
+            border-top: 1px solid var(--slate-200);
+            background-color: var(--surface-container-low);
+        }
+
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .footer-link {
+            color: var(--slate-500);
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 1rem;
+            background-color: var(--surface);
+        }
+
+        @media (min-width: 768px) {
+            .main-content {
+                margin-left: 256px;
+                padding: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 0.75rem;
+            }
+        }
+
+        .max-w-container {
+            max-width: 80rem;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            margin-bottom: 2.5rem;
+        }
+
+        @media (max-width: 480px) {
+            .page-header {
+                margin-bottom: 1.25rem;
+            }
+        }
+
+        .page-title {
+            font-size: 1.875rem;
+            font-weight: 900;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: -0.025em;
+        }
+
+        @media (min-width: 768px) {
+            .page-title {
+                font-size: 2.25rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page-title {
+                font-size: 1.375rem;
+            }
+        }
+
+        .page-subtitle {
+            color: var(--on-surface-variant);
+            margin-top: 0.25rem;
+            font-size: 0.9375rem;
+        }
+
+        @media (max-width: 480px) {
+            .page-subtitle {
+                font-size: 0.8125rem;
+            }
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2.5rem;
+        }
+
+        @media (min-width: 1024px) {
+            .main-grid {
+                grid-template-columns: repeat(10, minmax(0, 1fr));
+            }
+
+            .grid-left {
+                grid-column: span 7 / span 7;
+            }
+
+            .grid-right {
+                grid-column: span 3 / span 3;
+            }
+        }
+
+        /* Form Sections */
+        .form-section {
+            background-color: var(--surface-container-lowest);
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(195, 198, 214, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 480px) {
+            .form-section {
+                padding: 1rem 0.75rem;
+                margin-bottom: 1rem;
+                border-radius: 0.5rem;
+            }
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--surface-container-high);
+        }
+
+        @media (max-width: 480px) {
+            .section-header {
+                margin-bottom: 1rem;
+                margin-left: -0.75rem !important;
+            }
+        }
+
+        .section-title {
+            font-size: 0.875rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: var(--on-surface-variant);
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 480px) {
+            .section-title {
+                font-size: 0.75rem;
+            }
+        }
+
+        .form-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .form-grid-2 {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 480px) {
+            .form-grid-2 {
+                gap: 1rem;
+            }
+        }
+
+        .form-grid-3 {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .form-grid-3 {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 480px) {
+            .form-grid-3 {
+                gap: 1rem;
+            }
+        }
+
+        .items-start {
+            align-items: flex-start;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .input-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--on-surface-variant);
+            text-transform: uppercase;
+        }
+
+        .form-control {
+            width: 100%;
+            background-color: var(--surface-container-highest);
+            border: none;
+            border-radius: 0.375rem;
+            padding: 0.75rem 1rem;
+            color: var(--on-surface);
+            font-size: 1rem;
+            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-bottom: 2px solid var(--primary);
+            background-color: var(--surface-container-lowest);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .form-control[disabled],
+        .form-control[readonly] {
+            opacity: 0.6;
+            cursor: not-allowed;
+            font-weight: 600;
+            color: var(--on-surface-variant);
+        }
+
+        .form-control.uppercase {
+            text-transform: uppercase;
+            font-weight: 700;
+            font-family: 'Public Sans', sans-serif;
+        }
+
+        .form-control.uppercase::placeholder {
+            text-transform: none;
+            font-weight: 400;
+            font-family: 'Work Sans', sans-serif;
+        }
+
+        .helper-text {
+            font-size: 0.625rem;
+            color: var(--on-surface-variant);
+            font-style: italic;
+            margin-top: 0.25rem;
+        }
+
+        /* Marathi subtitle */
+        .page-title-mr {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--on-surface-variant);
+            margin-top: 0.125rem;
+        }
+
+        @media (max-width: 480px) {
+            .page-title-mr {
+                font-size: 0.875rem;
+            }
+        }
+
+        /* Scan input row */
+        .scan-input-row {
+            display: flex;
+            gap: 0.75rem;
+            align-items: stretch;
+        }
+
+        .scan-input-row .form-control {
+            flex: 1;
+        }
+
+        .btn-scan {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.375rem;
+            padding: 0.75rem 1.25rem;
+            background-color: var(--primary);
+            color: #ffffff;
+            border-radius: 0.375rem;
+            font-weight: 700;
+            font-size: 0.8125rem;
+            font-family: 'Inter', sans-serif;
+            white-space: nowrap;
+            transition: opacity 0.2s;
+        }
+
+        .btn-scan:hover {
+            opacity: 0.9;
+        }
+
+        @media (max-width: 480px) {
+            .btn-scan {
+                padding: 0.75rem;
+            }
+
+            .btn-scan .btn-scan-text {
+                display: none;
+            }
+        }
+
+        /* Weighbridge Specific Inputs */
+        .form-control.large {
+            padding: 1.25rem 1rem;
+            font-size: 1.5rem;
+            font-weight: 900;
+        }
+
+        @media (max-width: 480px) {
+            .form-control.large {
+                padding: 1rem 0.75rem;
+                font-size: 1.25rem;
+            }
+        }
+
+        .form-control.large.text-primary {
+            color: var(--primary);
+        }
+
+        .form-control.large.text-secondary {
+            color: var(--secondary);
+            border-bottom-color: transparent !important;
+        }
+
+        .net-wt-display {
+            width: 100%;
+            padding: 1.25rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--tertiary-container);
+            color: var(--on-tertiary-container);
+            border-radius: 0.375rem;
+            transition: background-color 0.3s;
+        }
+
+        .net-wt-display.positive {
+            background-color: var(--orange-700);
+            color: #ffffff;
+        }
+
+        .net-wt-value {
+            font-size: 1.5rem;
+            font-weight: 900;
+        }
+
+        @media (max-width: 480px) {
+            .net-wt-value {
+                font-size: 1.25rem;
+            }
+        }
+
+
+
+        /* Commodity Weighing Steps */
+        .commodity-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .commodity-step {
+            background: var(--surface-container-low);
+            border: 1px solid var(--outline-variant);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            position: relative;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .commodity-step.active {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(0, 68, 147, 0.15);
+        }
+
+        .commodity-step.done {
+            border-color: var(--green-500);
+            background: #f0fdf4;
+        }
+
+        .commodity-step-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .commodity-step-name {
+            font-weight: 700;
+            font-size: 0.9375rem;
+            color: var(--on-surface);
+            font-family: 'Public Sans', sans-serif;
+        }
+
+        .commodity-step-badge {
+            padding: 0.125rem 0.625rem;
+            border-radius: 9999px;
+            font-size: 0.625rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .commodity-step-badge.pending {
+            background: var(--amber-100);
+            color: var(--amber-700);
+        }
+
+        .commodity-step-badge.active-badge {
+            background: var(--primary-fixed);
+            color: var(--primary);
+        }
+
+        .commodity-step-badge.complete {
+            background: var(--green-100);
+            color: var(--green-700);
+        }
+
+        .commodity-step-inputs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        @media (max-width: 600px) {
+            .commodity-step-inputs {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .commodity-step-inputs .form-control {
+            padding: 0.75rem;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .commodity-step-inputs .form-control:disabled {
+            background: var(--surface-container-highest);
+        }
+
+        .step-net-display {
+            text-align: center;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            font-weight: 900;
+            font-size: 1rem;
+            font-family: 'Public Sans', sans-serif;
+        }
+
+        .step-net-display.empty {
+            background: var(--surface-container-highest);
+            color: var(--outline);
+        }
+
+        .step-net-display.filled {
+            background: var(--orange-700);
+            color: #fff;
+        }
+
+        /* Summary bar */
+        .weight-summary {
+            background: var(--inverse-surface);
+            color: #fff;
+            padding: 1.25rem 1.5rem;
+            border-radius: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .weight-summary-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            opacity: 0.7;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .weight-summary-value {
+            font-size: 1.75rem;
+            font-weight: 900;
+            font-family: 'Public Sans', sans-serif;
+        }
+
+        @media (max-width: 480px) {
+            .weight-summary-value {
+                font-size: 1.25rem;
+            }
+        }
+
+        .no-commodities-msg {
+            padding: 2rem;
+            text-align: center;
+            color: var(--outline);
+            font-style: italic;
+            font-size: 0.875rem;
+        }
+
+        /* Action Buttons */
+        .form-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            padding-top: 1rem;
+        }
+
+        @media (min-width: 768px) {
+            .form-actions {
+                flex-direction: row;
+                align-items: center;
+            }
+        }
+
+        .btn-save {
+            width: 100%;
+            padding: 1rem 2.5rem;
+            background: linear-gradient(to right, var(--primary), var(--primary-container));
+            color: #ffffff;
+            font-weight: 700;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transition: opacity 0.2s, transform 0.1s;
+            font-size: 1rem;
+        }
+
+        @media (min-width: 768px) {
+            .btn-save {
+                width: auto;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .btn-save {
+                padding: 0.875rem 1rem;
+                font-size: 0.875rem;
+            }
+        }
+
+        .btn-save:hover {
+            opacity: 0.9;
+        }
+
+        .btn-save:active {
+            transform: scale(0.98);
+        }
+
+        .btn-clear {
+            width: 100%;
+            padding: 1rem 2.5rem;
+            border: 2px solid rgba(195, 198, 214, 0.3);
+            color: var(--on-surface-variant);
+            font-weight: 700;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: background-color 0.2s;
+            font-size: 1rem;
+        }
+
+        @media (min-width: 768px) {
+            .btn-clear {
+                width: auto;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .btn-clear {
+                padding: 0.875rem 1rem;
+                font-size: 0.875rem;
+            }
+        }
+
+        .btn-clear:hover {
+            background-color: var(--surface-container);
+        }
+
+        /* Right Side Panels */
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .entries-box {
+            background-color: var(--surface-container-low);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid rgba(195, 198, 214, 0.2);
+            position: sticky;
+            top: 6rem;
+        }
+
+        .entries-box-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .entries-box-title {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: var(--on-surface);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-live {
+            background-color: var(--primary-container);
+            color: var(--on-primary-container);
+            padding: 0.125rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.625rem;
+            font-weight: 700;
+        }
+
+        .entry-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .entry-card {
+            background-color: var(--surface-container-lowest);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--primary);
+        }
+
+        .entry-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+
+        .entry-id {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--primary-container);
+        }
+
+        .status-pill {
+            padding: 0.125rem 0.5rem;
+            font-size: 0.625rem;
+            font-weight: 700;
+            border-radius: 9999px;
+            text-transform: uppercase;
+            letter-spacing: -0.05em;
+        }
+
+        .status-pill.complete {
+            background-color: var(--green-100);
+            color: var(--green-700);
+        }
+
+        .status-pill.pending {
+            background-color: var(--amber-100);
+            color: var(--amber-700);
+        }
+
+        .entry-vehicle {
+            font-size: 0.875rem;
+            font-weight: 900;
+            color: var(--on-surface);
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+        }
+
+        .entry-desc {
+            font-size: 0.75rem;
+            color: var(--on-surface-variant);
+        }
+
+        .btn-view-all {
+            width: 100%;
+            margin-top: 1.5rem;
+            padding: 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: var(--primary);
+            border: 1px solid rgba(0, 68, 147, 0.2);
+            border-radius: 0.5rem;
+            transition: background-color 0.2s;
+        }
+
+        .btn-view-all:hover {
+            background-color: rgba(0, 68, 147, 0.05);
+        }
+
+        /* Mobile Bottom Nav */
+        .mobile-nav {
+            display: flex;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 4rem;
+            background-color: #ffffff;
+            border-top: 1px solid var(--slate-200);
+            justify-content: space-around;
+            align-items: center;
+            padding: 0 1rem;
+            z-index: 50;
+        }
+
+        @media (min-width: 768px) {
+            .mobile-nav {
+                display: none;
+            }
+        }
+
+        .mobile-nav-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            color: var(--slate-500);
+        }
+
+        .mobile-nav-btn.active {
+            color: var(--blue-700);
+        }
+
+        .mobile-nav-label {
+            font-size: 0.625rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Background Texture */
+        .bg-texture {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            opacity: 0.03;
+            mix-blend-mode: multiply;
+            z-index: -1;
+            background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBQcHfqUmFCO0pB40edgMbqkpFSc5GwqeZ93JvlcFbwWAV_FZQ1hRSg7aSJJMDdr_tchL9Qxh1vlb2GyJwk1qMx-4r4pTmEAcjfWdPWVcJmSYYZ9VcU46DauBda3AFHptltpvsnHYIOv6Ynvq2g46fKsGBelMt8rK13BKtNKqf15myZnpjxwyhYRuS3YzHdDgmIaRwrHdoEvZlRBut62LunfkKzI_rmnNx3KWO58KJ9OCl-1AZPA0EixaZUHVGtQPDh7OShHn51IQM');
+        }
+
+        /* Modals */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            padding: 1rem;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-container {
+            background-color: var(--surface-container-lowest);
+            border-radius: 0.75rem;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            transform: scale(0.95);
+            transition: transform 0.2s;
+        }
+
+        .modal-overlay.active .modal-container {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--surface-container-high);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--slate-50);
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--blue-900);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-close {
+            background: none;
+            border: none;
+            color: var(--slate-500);
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 0.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+
+        .btn-close:hover {
+            background-color: var(--slate-200);
+            color: var(--slate-700);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--surface-container-high);
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            background-color: var(--slate-50);
+        }
+
+        /* History Table */
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .history-table th {
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid var(--slate-200);
+            color: var(--slate-500);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .history-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--slate-100);
+            vertical-align: middle;
+        }
+
+        .history-table tbody tr {
+            transition: background-color 0.15s;
+        }
+
+        .history-table tbody tr:hover {
+            background-color: var(--slate-50);
+        }
+
+        /* Details Breakdown */
+        .detail-card {
+            background: var(--surface-container-low);
+            border: 1px solid var(--outline-variant);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .detail-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-label {
+            color: var(--slate-500);
+            font-weight: 600;
+        }
+
+        .detail-value {
+            font-weight: 700;
+            color: var(--on-surface);
+        }
+
+        .comm-breakdown {
+            margin-top: 1rem;
+            border-top: 1px dashed var(--slate-300);
+            padding-top: 1rem;
+        }
+
+        .comm-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            font-size: 0.875rem;
+        }
+
+        .entry-card {
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        .entry-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="top-nav">
+        <div class="nav-brand headline">APMC Market</div>
+        <div class="nav-controls">
+            <div class="lang-toggle">
+                <button class="lang-btn active">English</button>
+                <button class="lang-btn inactive">मराठी</button>
+            </div>
+            <div class="icon-actions">
+                <button class="icon-btn"><span class="material-symbols-outlined">settings</span></button>
+                <button class="icon-btn"><span class="material-symbols-outlined"
+                        style="font-size: 1.125rem;">account_circle</span></button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="app-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="sidebar-title">APMC Terminal</h1>
+                <p class="sidebar-subtitle label">Weighbridge Desk</p>
+            </div>
+            <nav class="sidebar-nav">
+                <a class="sidebar-link active" href="#">
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">scale</span>
+                    <span>Lot Weight Processing</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="footer-links">
+                    <a class="footer-link" href="#">
+                        <span class="material-symbols-outlined">help_center</span>
+                        <span>Help</span>
+                    </a>
+                    <a class="footer-link" href="#">
+                        <span class="material-symbols-outlined">logout</span>
+                        <span>Logout</span>
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="max-w-container">
+                <header class="page-header">
+                    <h1 class="page-title headline">Lot Weight Processing</h1>
+                    <p class="page-title-mr headline">लॉट वजन प्रक्रिया</p>
+                    <p class="page-subtitle body-font">Record gross and tare weight to calculate the accurate net weight
+                        of incoming goods.</p>
+                </header>
+
+                <div class="main-grid">
+                    <div class="grid-left">
+                        <form id="weight-form">
+                            <!-- SCAN GATE PASS -->
+                            <section class="form-section">
+                                <div class="section-header"
+                                    style="border-left: 4px solid var(--primary); padding-left: 12px; margin-left: -2rem;">
+                                    <span class="material-symbols-outlined"
+                                        style="color: var(--primary); font-size: 1.25rem;">qr_code_scanner</span>
+                                    <h2 class="section-title label text-on-surface-variant">SCAN GATE PASS</h2>
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label label">Enter RST-Number</label>
+                                    <div class="scan-input-row">
+                                        <input class="form-control body-font" id="rst_lookup"
+                                            placeholder="e.g. RST-0891" type="text" oninput="lookupLotData()" />
+                                        <button class="btn-scan" type="button"
+                                            onclick="document.getElementById('rst_lookup').focus();">
+                                            <span class="material-symbols-outlined"
+                                                style="font-size: 1.25rem;">qr_code_scanner</span>
+                                            <span class="btn-scan-text">Scan</span>
+                                        </button>
+                                    </div>
+                                    <p class="helper-text label" id="rst-status">Or use barcode scanner</p>
+                                </div>
+                            </section>
+
+                            <!-- INWARD DETAILS -->
+                            <section class="form-section">
+                                <div class="section-header"
+                                    style="border-left: 4px solid var(--primary); padding-left: 12px; margin-left: -2rem;">
+                                    <h2 class="section-title label text-on-surface-variant">INWARD DETAILS</h2>
+                                </div>
+                                <div class="form-grid-2 items-start">
+                                    <div class="input-group">
+                                        <label class="input-label label">Vehicle Number</label>
+                                        <input class="form-control uppercase" id="vehicle_no_lookup" disabled
+                                            placeholder="Will auto-fill" type="text" />
+                                    </div>
+                                    <div class="input-group">
+                                        <label class="input-label label">Farmer Name</label>
+                                        <input class="form-control body-font" id="farmer_name_lookup" disabled
+                                            placeholder="Will auto-fill" type="text" />
+                                    </div>
+                                    <div class="input-group">
+                                        <label class="input-label label">Farmer Mobile No</label>
+                                        <input class="form-control body-font" id="farmer_mobile_lookup" disabled
+                                            placeholder="Will auto-fill" type="tel" />
+                                    </div>
+                                    <div class="input-group">
+                                        <label class="input-label label">Assigned Agent</label>
+                                        <input class="form-control body-font" id="agent_name_lookup" disabled
+                                            placeholder="Will auto-fill" type="text" />
+                                    </div>
+                                    <div class="input-group">
+                                        <label class="input-label label">Commodity Details</label>
+                                        <textarea class="form-control body-font" id="commodity_name_lookup" disabled
+                                            placeholder="Will auto-fill" rows="2" style="resize: none;"></textarea>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- WEIGHBRIDGE DATA -->
+                            <section class="form-section">
+                                <div class="section-header"
+                                    style="border-left: 4px solid var(--tertiary); padding-left: 12px; margin-left: -2rem;">
+                                    <span class="material-symbols-outlined"
+                                        style="color: var(--tertiary); font-size: 1.25rem;">scale</span>
+                                    <h2 class="section-title label" style="color: var(--tertiary);">WEIGHBRIDGE DATA
+                                    </h2>
+                                </div>
+
+                                <!-- Dynamic commodity weighing steps -->
+                                <div class="commodity-steps" id="commodity_steps">
+                                    <p class="no-commodities-msg" id="no_comm_msg">Enter a valid RST number to load
+                                        commodities for weighing.</p>
+                                </div>
+
+                                <!-- Total summary -->
+                                <div class="weight-summary" id="weight_summary" style="display:none;">
+                                    <div>
+                                        <p class="weight-summary-label">Total Net Weight (All Commodities)</p>
+                                        <p class="weight-summary-value" id="total_net_wt">0.00 kg</p>
+                                    </div>
+                                    <div style="text-align:right;">
+                                        <p class="weight-summary-label">Commodities Weighed</p>
+                                        <p class="weight-summary-value" id="weighed_count">0 / 0</p>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section class="form-actions">
+                                <button class="btn-save" type="submit">
+                                    <span class="material-symbols-outlined">save</span>
+                                    Record Weights & Generate Receipt
+                                </button>
+                                <button class="btn-clear" type="button" onclick="clearWeightsForm()">
+                                    <span class="material-symbols-outlined">restart_alt</span>
+                                    Clear Data
+                                </button>
+                            </section>
+                        </form>
+                    </div>
+
+                    <div class="grid-right right-panel">
+                        <div class="entries-box">
+                            <div class="entries-box-header">
+                                <h3 class="entries-box-title headline">Recent Weighings</h3>
+                                <span class="badge-live label text-green-700 bg-green-100">UPDATED</span>
+                            </div>
+
+                            <div class="entry-list" id="recent-weighing-list">
+                                <!-- Populated by JS -->
+                            </div>
+                            <button class="btn-view-all body-font" onclick="openHistoryModal()">View Full
+                                History</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <nav class="mobile-nav">
+        <button class="mobile-nav-btn">
+            <span class="material-symbols-outlined" style="font-size: 1.25rem;">psychology_alt</span>
+            <span class="mobile-nav-label">Lots</span>
+        </button>
+        <button class="mobile-nav-btn active">
+            <span class="material-symbols-outlined"
+                style="font-size: 1.25rem; font-variation-settings: 'FILL' 1;">scale</span>
+            <span class="mobile-nav-label">Weights</span>
+        </button>
+        <button class="mobile-nav-btn">
+            <span class="material-symbols-outlined" style="font-size: 1.25rem;">analytics</span>
+            <span class="mobile-nav-label">Stats</span>
+        </button>
+    </nav>
+
+    <!-- Modals -->
+    <div class="modal-overlay" id="historyModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 class="modal-title headline"><span class="material-symbols-outlined">history</span> Full Weighing
+                    History</h2>
+                <button class="btn-close" onclick="closeModal('historyModal')"><span
+                        class="material-symbols-outlined">close</span></button>
+            </div>
+            <div class="modal-body no-scrollbar">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>RST No</th>
+                            <th>Date / Time</th>
+                            <th>Vehicle</th>
+                            <th>Total Net (KG)</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-table-body">
+                        <!-- JS populated -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-clear body-font" onclick="closeModal('historyModal')"
+                    style="padding: 0.5rem 1rem;">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="detailsModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 class="modal-title headline"><span class="material-symbols-outlined">text_snippet</span> Lot Details
+                </h2>
+                <button class="btn-close" onclick="closeModal('detailsModal')"><span
+                        class="material-symbols-outlined">close</span></button>
+            </div>
+            <div class="modal-body no-scrollbar" id="details-body">
+                <!-- JS Populated -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn-clear body-font" onclick="closeModal('detailsModal')"
+                    style="padding: 0.5rem 1rem;">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="successModal">
+        <div class="modal-container" style="max-width: 500px;">
+            <div class="modal-body" style="text-align: center; padding: 2.5rem 2rem;">
+                <div
+                    style="background: var(--green-100); color: var(--green-700); width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                    <span class="material-symbols-outlined"
+                        style="font-size: 32px; font-variation-settings: 'wght' 700;">check_circle</span>
+                </div>
+                <h2 class="headline" style="color: var(--on-surface); margin-bottom: 0.5rem;">Weights Recorded!</h2>
+                <p class="body-font" style="color: var(--on-surface-variant); margin-bottom: 2rem;">Electronic weight
+                    receipt has been generated successfully for this lot.</p>
+
+                <div id="success-receipt-content"
+                    style="text-align: left; background: var(--slate-50); border: 1px dashed var(--slate-300); border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 2rem;">
+                    <!-- JS Populated -->
+                </div>
+
+                <div style="display: flex; gap: 1rem;">
+                    <button class="btn-save" style="flex: 1;" onclick="window.print()">
+                        <span class="material-symbols-outlined">print</span> Print Receipt
+                    </button>
+                    <button class="btn-clear" style="flex: 1;" onclick="closeModal('successModal')">
+                        Done
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-texture"></div>
+
+    <script>
+        let currentCommodities = []; // Array of commodity names parsed from RST entry
+
+        // Data Management
+        function getFarmerEntries() { return JSON.parse(localStorage.getItem('farmerEntries') || '{}'); }
+        function getCompletedWeighings() { return JSON.parse(localStorage.getItem('completedWeighings') || '[]'); }
+        function saveCompletedWeighing(entry) {
+            const weighings = getCompletedWeighings();
+            weighings.unshift(entry); // Add to beginning
+            localStorage.setItem('completedWeighings', JSON.stringify(weighings));
+            renderRecentWeighings();
+        }
+
+        // Initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            renderRecentWeighings();
+        });
+
+        // Modals
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        function formatDateTime(isoString) {
+            const date = new Date(isoString);
+            return date.toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' });
+        }
+
+        function renderRecentWeighings() {
+            const list = document.getElementById('recent-weighing-list');
+            const weighings = getCompletedWeighings();
+
+            if (weighings.length === 0) {
+                list.innerHTML = `<p class="body-font text-slate-500" style="padding: 1rem; text-align: center; font-size: 0.875rem;">No recent weighings.</p>`;
+                return;
+            }
+
+            // Take top 3
+            let html = '';
+            for (let i = 0; i < Math.min(weighings.length, 3); i++) {
+                const w = weighings[i];
+                html += `
+                    <div class="entry-card" onclick="openDetailsModal('${w.rst}')">
+                        <div class="entry-card-header">
+                            <span class="entry-id headline">${w.rst}</span>
+                            <span class="status-pill complete">Completed</span>
+                        </div>
+                        <div>
+                            <p class="entry-vehicle headline">${w.vehicle}</p>
+                            <p class="entry-desc body-font text-primary font-bold">Total: ${w.totalNet.toLocaleString('en-IN', { minimumFractionDigits: 2 })} kg</p>
+                            <p class="entry-desc body-font" style="font-size: 10px; opacity: 0.7;">${w.commodities.length} commodities weighed</p>
+                        </div>
+                    </div>
+                `;
+            }
+            list.innerHTML = html;
+        }
+
+        function openHistoryModal() {
+            const tbody = document.getElementById('history-table-body');
+            const weighings = getCompletedWeighings();
+
+            if (weighings.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--slate-500); font-style: italic;">No history available</td></tr>`;
+            } else {
+                tbody.innerHTML = weighings.map(w => `
+                    <tr>
+                        <td class="font-bold text-blue-900">${w.rst}</td>
+                        <td class="label" style="font-size: 0.75rem;">${formatDateTime(w.timestamp)}</td>
+                        <td class="font-bold">${w.vehicle}</td>
+                        <td class="font-bold text-primary">${w.totalNet.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                        <td><button class="btn-scan" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;" onclick="openDetailsModal('${w.rst}')">View</button></td>
+                    </tr>
+                `).join('');
+            }
+            openModal('historyModal');
+        }
+
+        function openDetailsModal(rst) {
+            const weighings = getCompletedWeighings();
+            const w = weighings.find(x => x.rst === rst);
+            if (!w) return;
+
+            // Optional: get extra info from farmerEntries if available
+            const farmerEntries = getFarmerEntries();
+            const match = findEntryByRST(farmerEntries, rst);
+            const farmerName = match ? match.data.farmer : 'N/A';
+            const agentName = match ? match.data.agent : 'N/A';
+
+            let commHtml = w.commodities.map(c => `
+                <div class="comm-item">
+                    <span class="font-bold">${c.name}</span>
+                    <span class="text-primary font-bold bg-blue-50 px-2 py-1 rounded">${c.net.toLocaleString('en-IN', { minimumFractionDigits: 2 })} kg</span>
+                </div>
+            `).join('');
+
+            document.getElementById('details-body').innerHTML = `
+                <div class="detail-card">
+                    <div class="detail-row"><span class="detail-label">RST No</span><span class="detail-value text-blue-900">${w.rst}</span></div>
+                    <div class="detail-row"><span class="detail-label">Date & Time</span><span class="detail-value">${formatDateTime(w.timestamp)}</span></div>
+                    <div class="detail-row"><span class="detail-label">Vehicle</span><span class="detail-value">${w.vehicle}</span></div>
+                    <div class="detail-row"><span class="detail-label">Farmer</span><span class="detail-value">${farmerName}</span></div>
+                    <div class="detail-row"><span class="detail-label">Agent</span><span class="detail-value">${agentName}</span></div>
+                </div>
+                
+                <h3 class="label text-slate-500 mb-2" style="font-size: 0.75rem; font-weight:700;">COMMODITY BREAKDOWN</h3>
+                <div class="detail-card">
+                    ${commHtml}
+                    <div class="comm-breakdown">
+                        <div class="detail-row"><span class="detail-label text-orange-700">TOTAL NET WEIGHT</span><span class="detail-value text-orange-700 font-black text-xl">${w.totalNet.toLocaleString('en-IN', { minimumFractionDigits: 2 })} kg</span></div>
+                    </div>
+                </div>
+            `;
+            openModal('detailsModal');
+        }
+
+        function openSuccessModal(w) {
+            const container = document.getElementById('success-receipt-content');
+            let commHtml = w.commodities.map(c => `
+                <div class="comm-item">
+                    <span class="font-bold" style="font-size: 0.8125rem;">${c.name}</span>
+                    <span class="text-primary font-bold">${c.net.toLocaleString('en-IN', { minimumFractionDigits: 2 })} kg</span>
+                </div>
+            `).join('');
+
+            container.innerHTML = `
+                <div class="detail-row"><span class="detail-label">RST No</span><span class="detail-value text-blue-900">${w.rst}</span></div>
+                <div class="detail-row"><span class="detail-label">Vehicle</span><span class="detail-value">${w.vehicle}</span></div>
+                <div class="detail-row" style="margin-bottom: 1rem;"><span class="detail-label">Date</span><span class="detail-value">${formatDateTime(w.timestamp)}</span></div>
+                
+                <h4 class="label" style="font-size: 0.625rem; font-weight: 700; color: var(--slate-400); text-transform: uppercase; margin-bottom: 0.5rem; border-top: 1px solid var(--slate-200); padding-top: 0.75rem;">Breakdown</h4>
+                ${commHtml}
+                <div class="detail-row" style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px dashed var(--slate-300);">
+                    <span class="detail-label text-orange-700">TOTAL NET WT</span>
+                    <span class="detail-value text-orange-700 font-black" style="font-size: 1.25rem;">${w.totalNet.toLocaleString('en-IN', { minimumFractionDigits: 2 })} kg</span>
+                </div>
+            `;
+            openModal('successModal');
+        }
+
+        // Core Form Logic
+        function parseCommodities(commodityStr) {
+            if (!commodityStr) return [];
+            return commodityStr.split('\n').map(c => c.trim()).filter(c => c.length > 0);
+        }
+
+        function normalizeKey(str) {
+            return str.replace(/[\r\n\t]/g, '').replace(/\s+/g, ' ').trim().toUpperCase();
+        }
+
+        function findEntryByRST(farmerEntries, rstInput) {
+            if (farmerEntries[rstInput]) return { key: rstInput, data: farmerEntries[rstInput] };
+            const normalizedInput = normalizeKey(rstInput);
+            for (const key of Object.keys(farmerEntries)) {
+                if (normalizeKey(key) === normalizedInput) return { key: key, data: farmerEntries[key] };
+            }
+            return null;
+        }
+
+        function lookupLotData() {
+            const rstInput = document.getElementById('rst_lookup').value.trim().toUpperCase();
+            const statusEl = document.getElementById('rst-status');
+
+            if (!rstInput) {
+                clearDetails();
+                clearWeighingSteps();
+                statusEl.innerText = 'Or use barcode scanner';
+                statusEl.style.color = 'var(--on-surface-variant)';
+                return;
+            }
+
+            const farmerEntries = getFarmerEntries();
+            const match = findEntryByRST(farmerEntries, rstInput);
+
+            if (match) {
+                const data = match.data;
+                document.getElementById('vehicle_no_lookup').value = data.vehicle || '';
+                document.getElementById('farmer_name_lookup').value = data.farmer || '';
+                document.getElementById('farmer_mobile_lookup').value = data.mobile || '';
+                document.getElementById('agent_name_lookup').value = data.agent || '';
+                document.getElementById('commodity_name_lookup').value = data.commodity || '';
+
+                statusEl.innerText = '✓ Gate Pass Validated';
+                statusEl.style.color = 'var(--green-700)';
+
+                currentCommodities = parseCommodities(data.commodity);
+                buildWeighingSteps();
+            } else {
+                if (rstInput.length > 3) {
+                    clearDetails();
+                    clearWeighingSteps();
+                    statusEl.innerText = '✗ Gate Pass not found';
+                    statusEl.style.color = 'var(--error)';
+                } else {
+                    statusEl.innerText = 'Searching...';
+                    statusEl.style.color = 'var(--on-surface-variant)';
+                }
+            }
+        }
+
+        function clearDetails() {
+            document.getElementById('vehicle_no_lookup').value = '';
+            document.getElementById('farmer_name_lookup').value = '';
+            document.getElementById('farmer_mobile_lookup').value = '';
+            document.getElementById('agent_name_lookup').value = '';
+            document.getElementById('commodity_name_lookup').value = '';
+        }
+
+        function clearWeighingSteps() {
+            currentCommodities = [];
+            document.getElementById('commodity_steps').innerHTML = '<p class="no-commodities-msg" id="no_comm_msg">Enter a valid RST number to load commodities for weighing.</p>';
+            document.getElementById('weight_summary').style.display = 'none';
+        }
+
+        function buildWeighingSteps() {
+            const container = document.getElementById('commodity_steps');
+            const summary = document.getElementById('weight_summary');
+
+            if (currentCommodities.length === 0) {
+                container.innerHTML = '<p class="no-commodities-msg">No commodities found for this RST entry.</p>';
+                summary.style.display = 'none';
+                return;
+            }
+
+            let html = '';
+            currentCommodities.forEach((comm, i) => {
+                const stepNum = i + 1;
+                html += `
+                <div class="commodity-step" id="step_${i}">
+                    <div class="commodity-step-header">
+                        <span class="commodity-step-name">
+                            <span class="material-symbols-outlined" style="font-size:1rem; vertical-align:middle; margin-right:0.25rem;">inventory_2</span>
+                            ${stepNum}. ${comm}
+                        </span>
+                        <span class="commodity-step-badge pending" id="badge_${i}">Pending</span>
+                    </div>
+                    <div class="commodity-step-inputs">
+                        <div class="input-group">
+                            <label class="input-label label">Total Weight / Gross (KG)</label>
+                            <input class="form-control headline" id="gross_${i}" type="number" step="0.01" placeholder="0.00" oninput="calcStepNet(${i})" />
+                            <p class="helper-text label">Truck + ${comm.split(' - ')[0]}</p>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label label">Tare Weight (KG)</label>
+                            <input class="form-control headline" id="tare_${i}" type="number" step="0.01" placeholder="0.00" oninput="calcStepNet(${i})" />
+                            <p class="helper-text label">After unloading ${comm.split(' - ')[0]}</p>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label label" style="color: var(--tertiary);">Net Weight (KG)</label>
+                            <div class="step-net-display empty" id="net_${i}">0.00</div>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
+            summary.style.display = 'flex';
+            updateSummary();
+        }
+
+        function calcStepNet(index) {
+            const gross = parseFloat(document.getElementById(`gross_${index}`).value) || 0;
+            const tare = parseFloat(document.getElementById(`tare_${index}`).value) || 0;
+            const net = Math.max(0, gross - tare);
+
+            const netEl = document.getElementById(`net_${index}`);
+            const badge = document.getElementById(`badge_${index}`);
+            const stepCard = document.getElementById(`step_${index}`);
+
+            netEl.innerText = net.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+            if (net > 0) {
+                netEl.className = 'step-net-display filled';
+                badge.className = 'commodity-step-badge complete';
+                badge.innerText = 'Done';
+                stepCard.className = 'commodity-step done';
+            } else {
+                netEl.className = 'step-net-display empty';
+                if (gross > 0) {
+                    badge.className = 'commodity-step-badge active-badge';
+                    badge.innerText = 'Weighing...';
+                    stepCard.className = 'commodity-step active';
+                } else {
+                    badge.className = 'commodity-step-badge pending';
+                    badge.innerText = 'Pending';
+                    stepCard.className = 'commodity-step';
+                }
+            }
+
+            updateSummary();
+        }
+
+        function updateSummary() {
+            let totalNet = 0;
+            let doneCount = 0;
+            currentCommodities.forEach((_, i) => {
+                const gross = parseFloat(document.getElementById(`gross_${i}`)?.value) || 0;
+                const tare = parseFloat(document.getElementById(`tare_${i}`)?.value) || 0;
+                const net = Math.max(0, gross - tare);
+                totalNet += net;
+                if (net > 0) doneCount++;
+            });
+            document.getElementById('total_net_wt').innerText = totalNet.toLocaleString('en-IN', { minimumFractionDigits: 2 }) + ' kg';
+            document.getElementById('weighed_count').innerText = `${doneCount} / ${currentCommodities.length}`;
+        }
+
+        function clearWeightsForm() {
+            document.getElementById('weight-form').reset();
+            document.getElementById('rst-status').innerText = 'Or use barcode scanner';
+            document.getElementById('rst-status').style.color = 'var(--on-surface-variant)';
+            clearDetails();
+            clearWeighingSteps();
+        }
+
+        // Handle form submission
+        document.getElementById('weight-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const rst = document.getElementById('rst_lookup').value.trim().toUpperCase();
+            const farmerEntries = getFarmerEntries();
+            const match = findEntryByRST(farmerEntries, rst);
+
+            if (!rst || !match) {
+                alert('Please enter a valid RST Number first.');
+                return;
+            }
+
+            if (currentCommodities.length === 0) {
+                alert('No commodities to weigh.');
+                return;
+            }
+
+            let allDone = true;
+            let totalNet = 0;
+            let breakdown = [];
+            let commoditiesWeighed = [];
+
+            currentCommodities.forEach((comm, i) => {
+                const gross = parseFloat(document.getElementById(`gross_${i}`).value) || 0;
+                const tare = parseFloat(document.getElementById(`tare_${i}`).value) || 0;
+                const net = Math.max(0, gross - tare);
+                if (net <= 0) allDone = false;
+                totalNet += net;
+                breakdown.push(`${comm}: ${net.toLocaleString('en-IN', { minimumFractionDigits: 2 })} kg`);
+                commoditiesWeighed.push({ name: comm, gross, tare, net });
+            });
+
+            if (!allDone) {
+                alert('Please complete weighing for all commodities before saving.');
+                return;
+            }
+
+            // Save to localStorage
+            const entryObject = {
+                rst: match.key,
+                timestamp: new Date().toISOString(),
+                vehicle: document.getElementById('vehicle_no_lookup').value,
+                totalNet: totalNet,
+                commodities: commoditiesWeighed
+            };
+            saveCompletedWeighing(entryObject);
+            openSuccessModal(entryObject);
+            clearWeightsForm();
+        });
+    </script>
+</body>
+
+</html>

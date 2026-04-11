@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Trader Bill</title>
+    <!-- Standard styling matching others -->
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;700;900&family=Work+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <style>
+        :root {
+            --background: #f8f9fa; --surface: #f8f9fa; --on-primary: #ffffff; --primary: #004493; --primary-fixed: #d8e2ff;
+            --on-surface: #191c1d; --surface-container: #edeeef; --surface-container-high: #e7e8e9; --primary-container: #235cb2;
+            --surface-container-lowest: #ffffff; --outline-variant: #c3c6d6; --secondary: #4c616c; --outline: #737785;
+            --surface-container-low: #f3f4f5; --on-surface-variant: #424654; --slate-50: #f8fafc; --slate-100: #f1f5f9;
+            --slate-200: #e2e8f0; --slate-400: #94a3b8; --slate-500: #64748b; --slate-600: #475569; --blue-600: #2563eb;
+            --blue-800: #1e40af; --green-100: #dcfce3; --green-500: #22c55e; --green-600: #16a34a; --green-700: #15803d;
+            --amber-100: #fef3c7; --amber-500: #f59e0b; --amber-700: #b45309; --red-600: #dc2626;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: var(--surface); font-family: 'Work Sans', sans-serif; color: var(--on-surface); padding-bottom: 4rem; }
+        @media (min-width: 768px) { body { padding-bottom: 0; } }
+        .headline { font-family: 'Public Sans', sans-serif; }
+        a { text-decoration: none; color: inherit; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+        button, input, select { font-family: inherit; }
+
+        .top-nav { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 1.5rem; height: 4rem; position: sticky; top: 0; z-index: 50; background-color: #ffffff; border-bottom: 1px solid var(--slate-200); }
+        .nav-brand { font-size: 1.25rem; font-weight: 900; color: var(--primary); }
+        
+        .app-wrapper { display: flex; min-height: calc(100vh - 4rem); }
+        .sidebar { display: none; flex-direction: column; width: 256px; border-right: 1px solid var(--slate-200); background-color: var(--slate-50); flex-shrink: 0; position: fixed; height: calc(100vh - 4rem); left: 0; top: 4rem; z-index: 40; }
+        @media (min-width: 768px) { .sidebar { display: flex; } }
+        .sidebar-header { padding: 1.5rem; }
+        .sidebar-title { font-size: 1.25rem; font-weight: 700; color: var(--primary); }
+        .sidebar-nav { flex: 1; padding: 0 0.5rem; display: flex; flex-direction: column; gap: 0.25rem; }
+        .sidebar-link { padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.75rem; border-radius: 0.375rem; font-weight: 600; font-size: 0.875rem; color: var(--on-surface-variant); }
+        .sidebar-link.active { background-color: var(--primary); color: #ffffff; }
+        .sidebar-link:hover:not(.active) { background-color: var(--slate-200); }
+
+        .main-content { flex: 1; padding: 1rem; }
+        @media (min-width: 768px) { .main-content { margin-left: 256px; padding: 2rem; } }
+        .max-w-container { max-width: 80rem; margin: 0 auto; }
+        .page-header { margin-bottom: 2.5rem; }
+        .page-title { font-size: 1.875rem; font-weight: 900; color: var(--primary); text-transform: uppercase; }
+        
+        .main-grid { display: grid; grid-template-columns: 1fr; gap: 2.5rem; align-items: start; }
+        @media (min-width: 1024px) { 
+            .main-grid { grid-template-columns: repeat(12, minmax(0, 1fr)); } 
+            .grid-left { grid-column: span 4 / span 4; } 
+            .grid-right { grid-column: span 8 / span 8; } 
+        }
+
+        .form-section { background-color: var(--surface-container-lowest); padding: 1.5rem; border-radius: 0.75rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); margin-bottom: 2rem; }
+        .section-header { margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--slate-200); }
+        .section-title { font-size: 1rem; font-weight: 800; color: var(--on-surface-variant); text-transform: uppercase; }
+        .input-group { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; }
+        .input-label { font-size: 0.75rem; font-weight: 700; color: var(--on-surface-variant); text-transform: uppercase; }
+        .form-control { width: 100%; background-color: var(--slate-100); border: none; border-radius: 0.375rem; padding: 1rem; font-size: 1.125rem; font-weight: 700; outline: none; border-bottom: 2px solid transparent; }
+        .form-control:focus { border-bottom: 2px solid var(--primary); background-color: white; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .form-control.small-input { padding: 0.75rem; font-size: 1rem;  }
+        
+        .btn-fetch { background-color: var(--primary); color: white; padding: 1rem; border-radius: 0.5rem; font-weight: 700; width: 100%; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 0.5rem; border: none; transition: opacity 0.2s;}
+        .btn-fetch:hover { opacity: 0.9; }
+
+        .btn-print { background-color: #1a9e52; color: white; padding: 1rem; width: 100%; border-radius: 0.5rem; font-weight: 900; margin-top: 2rem; cursor: pointer; font-size: 1.1rem; border: none; transition: background-color 0.2s;}
+        .btn-print:hover { background-color: #168a46; }
+        
+        /* -------------------------------------------
+           Beautiful Receipt Styling (per reference)
+           ------------------------------------------- */
+        .receipt-container { 
+            background-color: white; 
+            padding: 2.5rem; 
+            border-radius: 0.5rem; 
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); 
+            color: #000; 
+            overflow-x: auto; 
+        }
+        
+        .trader-bill-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            text-align: left; 
+            font-size: 0.95rem; 
+            border: 2px solid #000; 
+            min-width: 650px; 
+            font-family: 'Work Sans', sans-serif;
+        }
+
+        .trader-bill-table th, .trader-bill-table td { 
+            border: 1px solid #000; 
+            padding: 0.6rem 0.8rem; 
+        }
+        
+        .t-header-row { 
+            font-size: 1.4rem; 
+            font-weight: 900; 
+            position: relative; 
+            padding: 1rem !important; 
+            text-align: center;
+        }
+
+        .t-col-num { width: 45px; }
+
+        .label-bold { font-weight: 800; font-size: 1.05rem; }
+        
+        /* The beautiful blue dotted lines for values */
+        .dotted-val { 
+            display: inline-block; 
+            border-bottom: 2px dotted var(--primary); 
+            color: var(--primary); 
+            font-weight: 800; 
+            margin: 0 0.5rem; 
+            text-align: center; 
+            vertical-align: bottom;
+            font-size: 1.05rem;
+        }
+
+        /* Inner Table headers */
+        .inner-th { text-align: center; font-weight: 800; font-size: 1.05rem; }
+        .cell-center { text-align: center; }
+        .cell-right { text-align: right; }
+        
+        /* Values in the table rows */
+        .val-text { font-weight: 700; color: #333; }
+        
+        /* Footer area lines */
+        .summary-block { padding: 1.5rem !important; line-height: 1.9; font-size: 1.05rem; }
+
+        .marathi-header { text-align: center; margin-bottom: 1rem; border-bottom: 2px solid #000; padding-bottom: 1rem; }
+        .m-title { font-size: 1.25rem; font-weight: 900; margin-bottom: 0.25rem; }
+        .m-subtitle { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .m-parishisht { font-size: 0.85rem; font-weight: bold; margin-bottom: 0.5rem; }
+
+        @media print {
+            body * { visibility: hidden; }
+            .receipt-container, .receipt-container * { visibility: visible; }
+            .receipt-container { position: absolute; left: 0; top: 0; width: 100%; box-shadow: none; padding: 0; border: none; }
+            .btn-print { display: none; }
+            body { background-color: white; }
+            /* Force printing of colors */
+            .dotted-val { color: var(--primary) !important; border-bottom: 2px dotted var(--primary) !important; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="nav-brand">APMC Market</div>
+    </nav>
+
+    <div class="app-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="sidebar-title">Lekha Vibhag</h1>
+            </div>
+            <nav class="sidebar-nav">
+                <a class="sidebar-link active" href="trader_bill.html">
+                    <span class="material-symbols-outlined">request_quote</span>
+                    <span>Trader Bill (व्यापारी बिल)</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="max-w-container">
+                <header class="page-header">
+                    <h1 class="page-title headline">Trader Bill Generation</h1>
+                </header>
+
+                <div class="main-grid">
+                    <!-- Config Left Sidebar -->
+                    <div class="grid-left">
+                        <section class="form-section" style="border-left: 4px solid var(--primary);">
+                            <div class="section-header">
+                                <h2 class="section-title">1. Fetch Transaction</h2>
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">Lot ID / RST</label>
+                                <input class="form-control" id="searchLotId" placeholder="LOT-XXX" type="text" />
+                            </div>
+                            <button class="btn-fetch" onclick="fetchBillData()">
+                                <span class="material-symbols-outlined">search</span> Load Data
+                            </button>
+                            <div class="input-group" id="sales-selection-group"
+                                style="display: none; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 2px dashed var(--slate-200);">
+                                <label class="input-label" style="font-size: 0.8rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem;">
+                                    <span class="material-symbols-outlined" style="font-size: 1.1rem; color: inherit;">receipt_long</span>
+                                    <span id="sales-dropdown-label-text">Select Transaction</span>
+                                </label>
+                                <select class="form-control body-font" id="salesDropdown" onchange="loadSelectedSale()"
+                                    style="font-weight: 600; font-size: 0.85rem; cursor: pointer; border: 2px solid var(--slate-300); background-color: white; padding: 0.75rem; border-radius: 0.5rem; width: 100%; max-width: 100%; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+                                </select>
+                            </div>
+                        </section>
+
+                        <section class="form-section" style="border-left: 4px solid var(--amber-500);">
+                            <div class="section-header">
+                                <h2 class="section-title">2. Fee Config</h2>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div class="input-group">
+                                    <label class="input-label">Market Fee %</label>
+                                    <input class="form-control small-input" id="cfg_market_fee" type="number" step="0.05" value="0.00" oninput="calculateTraderBill()" />
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">Supervision Fee %</label>
+                                    <input class="form-control small-input" id="cfg_supervision_fee" type="number" step="0.05" value="0.00" oninput="calculateTraderBill()" />
+                                </div>
+                            </div>
+                            
+                            <div class="input-group" style="margin-top: 1rem;">
+                                <label class="input-label" style="color: var(--green-600);">Override Weight (kg)</label>
+                                <input class="form-control small-input" id="manual_net_wt" type="number" placeholder="Net weight..." oninput="calculateTraderBill()" />
+                            </div>
+                        </section>
+                    </div>
+
+                    <!-- Beautiful Receipt Output Right Side -->
+                    <div class="grid-right">
+                        <div class="receipt-container" id="printable-receipt">
+                            <div class="marathi-header">
+                                <div class="m-parishisht">परिशिष्ट क्र. ६ (उपविधी ९६ नुसार)</div>
+                                <h2 class="m-title">उच्चतम कृषी उत्पन्न बाजार समिती माजलगाव, जि. बीड</h2>
+                                <p class="m-subtitle">आडत्याने शेतकऱ्याच्या शेतीमाल विक्री केलेल्या मालासंबंधी द्यावयाची हिशोबपट्टी</p>
+                            </div>
+                            
+                            <table class="trader-bill-table" id="billTable">
+                                <!-- Top Headers -->
+                                <tr>
+                                    <td colspan="9" class="t-header-row">
+                                        <span>बिल</span>
+                                        <span style="position: absolute; right: 1.5rem; font-size: 1.1rem; font-weight: normal;">
+                                            बुक नं.: <span class="dotted-val" id="r_book" style="min-width: 100px;"></span>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="9">
+                                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                                            <div>
+                                                <span class="label-bold">आडत्याचे नाव:</span> <span class="dotted-val" id="r_agent" style="min-width: 250px;"></span>
+                                            </div>
+                                            <div>
+                                                <span class="label-bold">दि.:</span> <span class="dotted-val" id="r_date" style="min-width: 130px;"></span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="9">
+                                        <span class="label-bold">खरेदीदाराचे नाव:</span> <span class="dotted-val" id="r_trader" style="min-width: 320px;"></span>
+                                    </td>
+                                </tr>
+                                
+                                <!-- Inner Table Columns -->
+                                <tr>
+                                    <th rowspan="2" class="inner-th" style="vertical-align: bottom; width: 30%;">शेतीमालाचे नाव</th>
+                                    <th colspan="2" class="inner-th">भाव</th>
+                                    <th colspan="2" class="inner-th">वजन मालाचा तपशील</th>
+                                    <th colspan="2" class="inner-th">एकूण रक्कम</th>
+                                    <th rowspan="2" class="t-col-num"></th>
+                                    <th rowspan="2" class="t-col-num"></th>
+                                </tr>
+                                <tr>
+                                    <th class="inner-th" style="padding: 0.4rem; width: 60px;">रुपये</th>
+                                    <th class="inner-th" style="padding: 0.4rem; width: 50px;">पैसे</th>
+                                    <th class="inner-th" style="padding: 0.4rem; width: 60px;">क्विंटल</th>
+                                    <th class="inner-th" style="padding: 0.4rem; width: 50px;">किलो</th>
+                                    <th class="inner-th" style="padding: 0.4rem; width: 80px;">रुपये</th>
+                                    <th class="inner-th" style="padding: 0.4rem; width: 50px;">पैसे</th>
+                                </tr>
+
+                                <!-- Data Rows -->
+                                <tbody id="traderBillBody">
+                                    <tr style="height: 2.2rem;">
+                                        <td id="td_commodity" class="cell-center label-bold"></td>
+                                        <td id="td_rate_rs" class="cell-center val-text"></td>
+                                        <td id="td_rate_p" class="cell-center val-text"></td>
+                                        <td id="td_wt_q" class="cell-center val-text"></td>
+                                        <td id="td_wt_k" class="cell-center val-text"></td>
+                                        <td id="td_amt_rs" class="cell-center label-bold"></td>
+                                        <td id="td_amt_p" class="cell-center val-text"></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                    <!-- Filler rows just for the empty ledger layout look -->
+                                    <tr style="height: 2.2rem;"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                                    <tr style="height: 2.2rem;"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                                    <tr style="height: 2.2rem;"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                                    <tr style="height: 2.2rem;"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                                    <tr style="height: 2.2rem;"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                                    <tr style="height: 2.2rem;"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                                </tbody>
+
+                                <!-- Bottom Summaries -->
+                                <tr>
+                                    <td colspan="7" class="summary-block">
+                                        <div>
+                                            <span class="label-bold">एकूण वजन:</span> <span class="dotted-val" id="r_total_weight" style="min-width: 120px;"></span> 
+                                            <span class="label-bold">व रक्कम:</span> <span class="dotted-val" id="r_total_amount_inline" style="min-width: 120px;"></span>
+                                        </div>
+                                        <div>
+                                            <span class="label-bold">मालाची झालेली एकूण किंमत:</span> <span class="dotted-val" id="r_total_value" style="min-width: 150px;"></span>
+                                        </div>
+                                        <div>
+                                            <span class="label-bold">मार्केट फी रक्कम रु.:</span> <span class="dotted-val" id="r_market_fee" style="min-width: 120px;"></span>
+                                        </div>
+                                        <div>
+                                            <span style="display:inline-block; margin-left: 6rem;">
+                                                <span class="label-bold">सुपरव्हिजन फीची रक्कम रु.:</span> <span class="dotted-val" id="r_supervision_fee" style="min-width: 120px;"></span>
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                
+                                <!-- Signatures -->
+                                <tr>
+                                    <td colspan="4" style="padding-top: 4rem; padding-bottom: 2rem; text-align: center; vertical-align: bottom;">
+                                        <strong style="font-size: 1.1rem;">सही खरेदीदार</strong>
+                                    </td>
+                                    <td colspan="3" style="padding-top: 4rem; padding-bottom: 2rem; text-align: center; vertical-align: bottom;">
+                                        <strong style="font-size: 1.1rem;">सही आडत्या</strong>
+                                    </td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </table>
+
+                            <button class="btn-print" onclick="window.print()">
+                                <span class="material-symbols-outlined" style="margin-right: 0.5rem; vertical-align: middle;">print</span> 
+                                Print Bill
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let currentTx = null;
+
+        function splitAmount(amount) {
+            const num = parseFloat(amount) || 0;
+            const rs = Math.floor(num);
+            const paise = Math.round((num - rs) * 100);
+            return { rs: rs.toString(), p: paise.toString().padStart(2, '0') };
+        }
+
+        function splitWeight(kg) {
+            const num = parseFloat(kg) || 0;
+            const q = Math.floor(num / 100);
+            const k = Math.round(num % 100);
+            return { q: q.toString(), k: k.toString().padStart(2, '0') };
+        }
+
+        function fetchBillData() {
+            const lotIdInput = document.getElementById('searchLotId').value.trim().toUpperCase();
+            if (!lotIdInput) { 
+                alert("Please enter a Lot ID (e.g. LOT-101) or RST number."); 
+                return; 
+            }
+
+            const allLots = JSON.parse(localStorage.getItem('auctionLots') || '{}');
+            const biddingResults = JSON.parse(localStorage.getItem('biddingResults') || '{}');
+            const farmerEntries = JSON.parse(localStorage.getItem('farmerEntries') || '{}');
+            
+            let matchedLots = [];
+
+            if (allLots[lotIdInput]) {
+                matchedLots.push({ id: lotIdInput, data: allLots[lotIdInput] });
+            } else {
+                for (const [id, data] of Object.entries(allLots)) {
+                    if ((data.rst && data.rst.toUpperCase() === lotIdInput) || (id.toUpperCase() === lotIdInput)) {
+                        matchedLots.push({ id: id, data: data });
+                    }
+                }
+            }
+
+            if (matchedLots.length === 0) { 
+                alert("Lot ID or RST Number not found in active auctions!"); 
+                return; 
+            }
+
+            let allSales = [];
+
+            matchedLots.forEach(match => {
+                let lotData = match.data;
+                const bidData = biddingResults[match.id];
+
+                if (!lotData.sales || lotData.sales.length === 0) {
+                    if (lotData.winningTrader && lotData.ratePerQuintal) {
+                        lotData.sales = [{
+                            trader: lotData.winningTrader, rate: lotData.ratePerQuintal, scale: lotData.scale || 'Quintal',
+                            quantity: lotData.quantity || lotData.bags, timestamp: new Date().toISOString()
+                        }];
+                    } else if (bidData && bidData.lockedPrice) {
+                        lotData.sales = [{
+                            trader: bidData.winningBidder, rate: bidData.lockedPrice, scale: bidData.scale || 'Quintal',
+                            quantity: bidData.saleQty || lotData.quantity || lotData.bags, timestamp: bidData.timestamp || new Date().toISOString()
+                        }];
+                    }
+                }
+
+                if (lotData.sales && lotData.sales.length > 0) {
+                    lotData.sales.forEach((sale, index) => {
+                        allSales.push({ lotId: match.id, lotData: lotData, saleIndex: index, sale: sale });
+                    });
+                }
+            });
+
+            if (allSales.length === 0) { alert("Bidding not completed for any matching lot!"); return; }
+
+            const salesDropdownGroup = document.getElementById('sales-selection-group');
+            const salesDropdown = document.getElementById('salesDropdown');
+            salesDropdown.innerHTML = '';
+            
+            allSales.forEach((saleObj, i) => {
+                const opt = document.createElement('option');
+                opt.value = i;
+                
+                const commShort = saleObj.lotData.commodity ? saleObj.lotData.commodity.split('(')[0].split('-')[0].trim() : 'N/A';
+                const lotShort = saleObj.lotId.replace('LOT-', '#');
+                const traderWords = saleObj.sale.trader.split(' ');
+                const traderShort = traderWords.length > 2 ? `${traderWords[0]} ${traderWords[1]}` : saleObj.sale.trader;
+
+                opt.text = `${lotShort} • ${saleObj.sale.quantity}${saleObj.sale.scale === 'Quintal' ? 'QTL' : 'Bgs'} @ ₹${saleObj.sale.rate} • ${traderShort} (${commShort})`;
+                salesDropdown.appendChild(opt);
+            });
+
+            window.activeSalesList = allSales;
+
+            const salesLabel = salesDropdownGroup.querySelector('.input-label');
+            const labelText = document.getElementById('sales-dropdown-label-text');
+            
+            if (allSales.length > 1) {
+                labelText.innerText = `Select Transaction (${allSales.length} Found)`;
+                salesLabel.style.color = "var(--amber-700)";
+                salesDropdown.style.borderColor = "var(--amber-400)";
+                salesDropdown.style.backgroundColor = "var(--amber-50)";
+                salesDropdownGroup.style.display = 'flex';
+            } else if (allSales.length === 1) {
+                labelText.innerText = "Transaction Selected";
+                salesLabel.style.color = "var(--green-700)";
+                salesDropdown.style.borderColor = "var(--green-400)";
+                salesDropdown.style.backgroundColor = "var(--green-50)";
+                salesDropdownGroup.style.display = 'flex';
+            } else {
+                salesDropdownGroup.style.display = 'none';
+            }
+            
+            loadSelectedSale(0);
+        }
+
+        function loadSelectedSale(index) {
+            index = index !== undefined ? index : document.getElementById('salesDropdown').value;
+            const saleObj = window.activeSalesList[index];
+            const lotData = saleObj.lotData;
+            const targetLot = saleObj.lotId;
+            const sale = saleObj.sale;
+
+            const farmerEntries = JSON.parse(localStorage.getItem('farmerEntries') || '{}');
+            const gateData = farmerEntries[lotData.rst] || {};
+            
+            const totalQuantity = lotData.quantity || lotData.bags || 1;
+            const completedWeighings = JSON.parse(localStorage.getItem('completedWeighings') || '[]');
+            const weighingRecord = completedWeighings.find(w => w.rst === lotData.rst);
+            
+            const totalWeight = (weighingRecord && weighingRecord.totalNet) ? weighingRecord.totalNet : (gateData.net || gateData.gross || 0);
+            const weightKg = (totalWeight / totalQuantity) * sale.quantity;
+
+            currentTx = {
+                lotId: targetLot,
+                agent: lotData.agent || '-',
+                trader: sale.trader,
+                commodity: lotData.commodity || lotData.commodityName || '-',
+                ratePerQuintal: parseFloat(sale.rate),
+                weightKg: parseFloat(weightKg),
+                date: new Date(sale.timestamp || Date.now()).toLocaleDateString('en-IN', {day: '2-digit', month: '2-digit', year: 'numeric'}),
+                saleIndex: index
+            };
+
+            document.getElementById('manual_net_wt').value = currentTx.weightKg.toFixed(2);
+            populateBillFields();
+        }
+
+        function populateBillFields() {
+            if (!currentTx) return;
+            document.getElementById('r_agent').innerText = currentTx.agent;
+            document.getElementById('r_trader').innerText = currentTx.trader;
+            document.getElementById('r_date').innerText = currentTx.date;
+            document.getElementById('r_book').innerText = currentTx.lotId.replace(/[^0-9]/g, '') || "103";
+            const saleObj = window.activeSalesList ? window.activeSalesList[currentTx.saleIndex] : null;
+            document.getElementById('td_commodity').innerText = currentTx.commodity + (window.activeSalesList && window.activeSalesList.length > 1 ? ` (Part ${parseInt(currentTx.saleIndex)+1})` : '');
+            calculateTraderBill();
+        }
+
+        function calculateTraderBill() {
+            if (!currentTx) return;
+
+            const liveWeightKg = parseFloat(document.getElementById('manual_net_wt').value) || 0;
+            const liveQuintals = liveWeightKg / 100;
+            const rate = currentTx.ratePerQuintal || 0;
+            const grossValue = liveQuintals * rate;
+
+            const mktFeePct = parseFloat(document.getElementById('cfg_market_fee').value) || 0;
+            const supFeePct = parseFloat(document.getElementById('cfg_supervision_fee').value) || 0;
+
+            const mktFeeAmt = (grossValue * mktFeePct) / 100;
+            const supFeeAmt = (grossValue * supFeePct) / 100;
+
+            const rateObj = splitAmount(rate);
+            const wgtObj = splitWeight(liveWeightKg);
+            const valObj = splitAmount(grossValue);
+
+            document.getElementById('td_rate_rs').innerText = rateObj.rs;
+            document.getElementById('td_rate_p').innerText = rateObj.p;
+
+            document.getElementById('td_wt_q').innerText = wgtObj.q;
+            document.getElementById('td_wt_k').innerText = wgtObj.k;
+
+            document.getElementById('td_amt_rs').innerText = valObj.rs;
+            document.getElementById('td_amt_p').innerText = valObj.p;
+
+            document.getElementById('r_total_weight').innerText = `${wgtObj.q} कि. ${wgtObj.k} किलो`;
+            document.getElementById('r_total_amount_inline').innerText = `${valObj.rs}.${valObj.p}`;
+            document.getElementById('r_total_value').innerText = `${valObj.rs}.${valObj.p}`;
+
+            document.getElementById('r_market_fee').innerText = mktFeeAmt.toFixed(2);
+            document.getElementById('r_supervision_fee').innerText = supFeeAmt.toFixed(2);
+        }
+    </script>
+</body>
+</html>

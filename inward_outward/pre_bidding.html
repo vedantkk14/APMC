@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Pre-Bidding - Lot Allocation</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;700;900&family=Work+Sans:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+
+    <style>
+        /* CSS Variables derived from original Tailwind Config */
+        :root {
+            --background: #f8f9fa; --surface: #f8f9fa; --tertiary-container: #a93802; --on-secondary-container: #526772;
+            --error: #ba1a1a; --on-primary: #ffffff; --primary: #004493; --on-tertiary-container: #ffcebd;
+            --primary-fixed: #d8e2ff; --on-surface: #191c1d; --surface-container: #edeeef; --surface-container-high: #e7e8e9;
+            --primary-container: #235cb2; --on-primary-fixed: #001a41; --surface-container-lowest: #ffffff;
+            --surface-container-highest: #e1e3e4; --outline-variant: #c3c6d6; --secondary: #4c616c; --on-background: #191c1d;
+            --outline: #737785; --surface-container-low: #f3f4f5; --on-surface-variant: #424654;
+
+            /* Standard colors */
+            --blue-600: #2563eb; --blue-800: #1e40af; --blue-900: #1e3a8a;
+            --slate-50: #f8fafc; --slate-100: #f1f5f9; --slate-200: #e2e8f0; --slate-400: #94a3b8;
+            --slate-500: #64748b; --slate-600: #475569;
+            --green-100: #dcfce3; --green-500: #22c55e; --green-700: #15803d;
+            --amber-100: #fef3c7; --amber-500: #f59e0b; --amber-700: #b45309;
+        }
+
+        /* Base Resets & Typography */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: var(--surface); font-family: 'Work Sans', sans-serif; color: var(--on-surface); -webkit-font-smoothing: antialiased; padding-bottom: 4rem; }
+        @media (min-width: 768px) { body { padding-bottom: 0; } }
+
+        .headline { font-family: 'Public Sans', sans-serif; }
+        .label { font-family: 'Inter', sans-serif; }
+        .body-font { font-family: 'Work Sans', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+        a { text-decoration: none; }
+        button { cursor: pointer; border: none; background: none; font-family: inherit; outline: none; }
+        input, select { font-family: inherit; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+
+        /* Top Navbar */
+        .top-nav { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 1.5rem; height: 4rem; position: sticky; top: 0; z-index: 50; background-color: #ffffff; border-bottom: 1px solid var(--slate-200); }
+        .nav-brand { font-size: 1.25rem; font-weight: 900; letter-spacing: -0.025em; color: var(--blue-900); }
+        .nav-controls { display: flex; align-items: center; gap: 1.5rem; }
+        
+        /* New Shop Filter in Navbar */
+        .top-nav-filter { display: flex; align-items: center; gap: 0.5rem; background: var(--slate-50); padding: 0.25rem 1rem; border-radius: 999px; border: 1px solid var(--slate-200); }
+        .nav-filter-label { font-size: 0.65rem; font-weight: 700; color: var(--slate-500); text-transform: uppercase; letter-spacing: 0.1em; white-space: nowrap; }
+        .nav-filter-select { background-color: transparent; border: none; outline: none; cursor: pointer; color: var(--primary); font-weight: 700; font-size: 0.875rem; padding: 0; appearance: none; }
+        .nav-filter-select:hover { color: var(--blue-800); }
+
+        .icon-actions { display: flex; align-items: center; gap: 0.75rem; }
+        .icon-btn { padding: 0.5rem; color: var(--slate-500); border-radius: 9999px; transition: background-color 0.2s; }
+        .icon-btn:hover { background-color: var(--slate-50); }
+
+        /* App Layout Wrapper */
+        .app-wrapper { display: flex; min-height: calc(100vh - 4rem); }
+
+        /* Sidebar Navigation */
+        .sidebar { display: none; flex-direction: column; height: calc(100vh - 4rem); width: 256px; border-right: 1px solid var(--slate-200); background-color: var(--slate-50); flex-shrink: 0; position: fixed; left: 0; top: 4rem; z-index: 40; }
+        @media (min-width: 768px) { .sidebar { display: flex; } }
+        .sidebar-header { padding: 1.5rem; }
+        .sidebar-title { font-size: 1.25rem; font-weight: 700; color: var(--blue-800); font-family: 'Public Sans', sans-serif; }
+        .sidebar-subtitle { font-size: 0.75rem; font-family: 'Inter', sans-serif; color: var(--on-surface-variant); }
+        .sidebar-nav { flex: 1; padding: 0 0.5rem; display: flex; flex-direction: column; gap: 0.25rem; }
+        .sidebar-link { padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.75rem; border-radius: 0.375rem; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.875rem; transition: all 0.2s; }
+        .sidebar-link.active { background-color: var(--blue-600); color: #ffffff; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
+        .sidebar-link.inactive { color: var(--slate-600); margin: 0 0.5rem; }
+        .sidebar-link.inactive:hover { background-color: var(--slate-200); }
+
+        /* Main Content */
+        .main-content { flex: 1; padding: 1rem; background-color: var(--surface); }
+        @media (min-width: 768px) { .main-content { margin-left: 256px; padding: 2rem; } }
+        .max-w-container { max-width: 80rem; margin: 0 auto; }
+        .page-header { margin-bottom: 2.5rem; }
+        .page-title { font-size: 1.875rem; font-weight: 900; color: var(--primary); text-transform: uppercase; letter-spacing: -0.025em; }
+        @media (min-width: 768px) { .page-title { font-size: 2.25rem; } }
+        .page-subtitle { color: var(--on-surface-variant); margin-top: 0.25rem; }
+
+        .main-grid { display: grid; grid-template-columns: 1fr; gap: 2.5rem; }
+        @media (min-width: 1024px) {
+            .main-grid { grid-template-columns: repeat(10, minmax(0, 1fr)); }
+            .grid-left { grid-column: span 7 / span 7; }
+            .grid-right { grid-column: span 3 / span 3; }
+        }
+
+        /* Form Sections */
+        .form-section { background-color: var(--surface-container-lowest); padding: 2rem; border-radius: 0.75rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); border: 1px solid rgba(195, 198, 214, 0.1); margin-bottom: 2rem; }
+        .section-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--surface-container-high); }
+        .section-title { font-size: 0.875rem; font-weight: 700; letter-spacing: 0.1em; color: var(--on-surface-variant); text-transform: uppercase; }
+        
+        .form-grid-2 { display: grid; grid-template-columns: 1fr; gap: 2rem; }
+        @media (min-width: 768px) { .form-grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+        .form-grid-3 { display: grid; grid-template-columns: 1fr; gap: 2rem; }
+        @media (min-width: 768px) { .form-grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+        .items-start { align-items: flex-start; }
+        .input-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .input-label { font-size: 0.75rem; font-weight: 700; color: var(--on-surface-variant); text-transform: uppercase; }
+
+        .form-control { width: 100%; background-color: var(--surface-container-highest); border: none; border-radius: 0.375rem; padding: 0.75rem 1rem; color: var(--on-surface); font-size: 1rem; transition: all 0.2s; border-bottom: 2px solid transparent; }
+        .form-control:focus { outline: none; border-bottom: 2px solid var(--primary); background-color: var(--surface-container-lowest); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .form-control[disabled] { opacity: 0.6; cursor: not-allowed; background-color: var(--slate-100); color: var(--slate-500); font-weight: bold;}
+        .form-control.uppercase { text-transform: uppercase; font-weight: 700; font-family: 'Public Sans', sans-serif; }
+        .helper-text { font-size: 0.625rem; color: var(--on-surface-variant); font-style: italic; margin-top: 0.25rem; }
+
+        /* Action Buttons */
+        .form-actions { display: flex; flex-direction: column; gap: 1rem; padding-top: 1rem; }
+        @media (min-width: 768px) { .form-actions { flex-direction: row; align-items: center; } }
+        .btn-save { width: 100%; padding: 1rem 2.5rem; background: linear-gradient(to right, var(--primary), var(--primary-container)); color: #ffffff; font-weight: 700; border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); cursor: pointer; border: none; }
+        @media (min-width: 768px) { .btn-save { width: auto; } }
+        .btn-clear { width: 100%; padding: 1rem 2.5rem; border: 2px solid rgba(195, 198, 214, 0.3); color: var(--on-surface-variant); font-weight: 700; border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; cursor: pointer; background: transparent; }
+        @media (min-width: 768px) { .btn-clear { width: auto; } }
+
+        /* Right Side */
+        .right-panel { display: flex; flex-direction: column; gap: 1.5rem; }
+        .entries-box { background-color: var(--surface-container-low); padding: 1.5rem; border-radius: 0.75rem; border: 1px solid rgba(195, 198, 214, 0.2); position: sticky; top: 6rem; max-height: calc(100vh - 8rem); overflow-y: auto;}
+        .entries-box-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+        .entries-box-title { font-size: 0.875rem; font-weight: 700; color: var(--on-surface); text-transform: uppercase; letter-spacing: 0.05em; }
+        .badge-live { background-color: var(--primary-container); color: var(--on-primary-container); padding: 0.125rem 0.5rem; border-radius: 0.25rem; font-size: 0.625rem; font-weight: 700; }
+        .entry-list { display: flex; flex-direction: column; gap: 1rem; }
+        .entry-card { background-color: var(--surface-container-lowest); padding: 1rem; border-radius: 0.5rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); border-left: 4px solid var(--primary); cursor: pointer; }
+        .entry-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem; }
+        .entry-id { font-size: 0.75rem; font-weight: 700; color: var(--primary-container); }
+        .status-pill { padding: 0.125rem 0.5rem; font-size: 0.625rem; font-weight: 700; border-radius: 9999px; text-transform: uppercase; letter-spacing: -0.05em; }
+        .status-pill.complete { background-color: var(--green-100); color: var(--green-700); }
+        .status-pill.pending { background-color: var(--amber-100); color: var(--amber-700); }
+        .entry-vehicle { font-size: 0.875rem; font-weight: 900; color: var(--on-surface); text-transform: uppercase; margin-bottom: 0.25rem; }
+        .entry-desc { font-size: 0.75rem; color: var(--on-surface-variant); }
+        .btn-view-all { width: 100%; margin-top: 1.5rem; padding: 0.75rem; font-size: 0.875rem; font-weight: 700; color: var(--primary); border: 1px solid rgba(0, 68, 147, 0.2); border-radius: 0.5rem; background: transparent; cursor: pointer; }
+
+        /* Lot Queue Modal Styles */
+        .queue-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        .queue-modal.active { display: flex; }
+        .queue-modal-content { background-color: white; border-radius: 0.75rem; width: 95%; max-width: 1000px; max-height: 90vh; overflow-y: auto; padding: 2rem; }
+        .queue-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--slate-200); padding-bottom: 1rem; }
+        .queue-modal-title { font-size: 1.5rem; font-weight: 900; color: var(--primary); }
+        .queue-close-btn { font-size: 1.75rem; cursor: pointer; color: var(--slate-500); border: none; background: transparent; }
+        .queue-search { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; }
+        .queue-search input { flex: 1; padding: 0.75rem; border: 1px solid var(--slate-200); border-radius: 0.375rem; font-size: 1rem; }
+        .queue-search button { padding: 0.75rem 1.5rem; background-color: var(--primary); color: white; border-radius: 0.375rem; font-weight: 700; cursor: pointer; border: none; }
+        .queue-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+        .queue-table th { background-color: var(--slate-100); padding: 0.75rem; text-align: left; font-weight: 700; color: var(--slate-600); border-bottom: 2px solid var(--slate-200); }
+        .queue-table td { padding: 0.75rem; border-bottom: 1px solid var(--slate-200); }
+        .queue-table tr:hover { background-color: var(--slate-50); }
+        .queue-empty { text-align: center; padding: 2rem; color: var(--slate-500); }
+        .queue-status { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+        .queue-status.pending { background-color: var(--amber-100); color: var(--amber-700); }
+        .queue-status.complete { background-color: var(--green-100); color: var(--green-700); }
+        .btn-view-receipt { background-color: var(--slate-100); color: var(--primary); border: 1px solid var(--slate-200); padding: 0.25rem 0.75rem; border-radius: 0.25rem; font-weight: 600; cursor: pointer; font-size: 0.75rem; }
+        
+        /* Success Lot Badge */
+        .success-lot-badge {
+            background: var(--primary-container);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 700;
+            font-family: 'Public Sans', sans-serif;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Print Styles */
+        @media print {
+            body * { visibility: hidden; }
+            #creationSuccessModal, #creationSuccessModal * { visibility: visible; }
+            #creationSuccessModal { position: absolute; left: 0; top: 0; width: 100%; background: white; display: flex !important; }
+            .queue-modal-content { box-shadow: none; border: none; width: 100%; max-width: 100%; padding: 0; }
+            .btn-save, .btn-clear, .queue-close-btn { display: none !important; }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="top-nav">
+        <div class="nav-brand headline">APMC Market</div>
+        <div class="nav-controls">
+            <div class="top-nav-filter">
+                <span class="material-symbols-outlined" style="font-size: 1rem; color: var(--slate-500);">storefront</span>
+                <span class="nav-filter-label">Active Shop:</span>
+                <select class="nav-filter-select body-font" id="currentShopFilter" onchange="handleShopChange()">
+                    <option value="">-- All Shops (Admin) --</option>
+                    <option value="Mauli Agency">Mauli Agency</option>
+                    <option value="Ambika Traders">Ambika Traders</option>
+                    <option value="Kalika Co">Kalika Co.</option>
+                </select>
+            </div>
+
+            <div class="icon-actions">
+                <button class="icon-btn"><span class="material-symbols-outlined" style="font-size: 1.125rem;">account_circle</span></button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="app-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="sidebar-title">APMC Terminal</h1>
+                <p class="sidebar-subtitle label" id="sidebarShopName">Shop Profile</p>
+            </div>
+            <nav class="sidebar-nav">
+                <a class="sidebar-link active" href="#">
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">psychology_alt</span>
+                    <span>Pre-Bidding Allocation</span>
+                </a>
+                <a class="sidebar-link inactive" href="#" onclick="openLotQueueModal(event)">
+                    <span class="material-symbols-outlined">queue</span>
+                    <span>Lot Queue (सूची)</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="max-w-container">
+                <header class="page-header">
+                    <h1 class="page-title headline">Lot Allocation (लिलाव तयारी)</h1>
+                    <p class="page-subtitle body-font">Allocate incoming goods to your shop and generate Lot Numbers for auction.</p>
+                </header>
+
+                <div class="main-grid">
+                    <div class="grid-left">
+                        <form id="commodity-form">
+                            <section class="form-section">
+                                <div class="section-header">
+                                    <span class="material-symbols-outlined" style="color: var(--primary);">qr_code_scanner</span>
+                                    <h2 class="section-title label">Scan Gate Pass</h2>
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label label">Enter RST-Number</label>
+                                    <input class="form-control body-font" id="rst_lookup" placeholder="e.g. RST-2024-0891" type="text" onchange="lookupFarmerData()" />
+                                    <p class="helper-text label" id="rst-status"></p>
+                                </div>
+                            </section>
+
+                            <section class="form-section">
+                                <div class="section-header">
+                                    <span class="material-symbols-outlined" style="color: var(--primary);">person_search</span>
+                                    <h2 class="section-title label">Inward Details</h2>
+                                </div>
+                                <div class="form-grid-2 items-start">
+                                    <div class="input-group">
+                                        <label class="input-label label">Vehicle Number</label>
+                                        <input class="form-control uppercase" id="vehicle_no_lookup" disabled placeholder="Will auto-fill" type="text" />
+                                    </div>
+                                    <div class="input-group">
+                                        <label class="input-label label">Farmer Name</label>
+                                        <input class="form-control body-font" id="farmer_name_lookup" disabled placeholder="Will auto-fill" type="text" />
+                                    </div>
+                                    <div class="input-group">
+                                        <label class="input-label label">Farmer Village</label>
+                                        <input class="form-control body-font" id="farmer_village_lookup" disabled placeholder="Will auto-fill" type="text" />
+                                    </div>
+                                    <div class="input-group">
+                                        <label class="input-label label">Assigned Agent</label>
+                                        <input class="form-control body-font" id="agent_name_lookup" disabled placeholder="Will auto-fill" type="text" />
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section class="form-section">
+                                <div class="section-header">
+                                    <span class="material-symbols-outlined" style="color: var(--primary);">inventory_2</span>
+                                    <h2 class="section-title label">Lot Details</h2>
+                                </div>
+                                
+                                <div id="commodities_container" style="display: flex; flex-direction: column; gap: 1rem;">
+                                    <div class="input-group">
+                                        <p class="helper-text label" style="font-size: 0.875rem;">Fetch an RST to load commodities.</p>
+                                    </div>
+                                </div>
+                            </section>
+                            
+                            <section class="form-actions">
+                                <button class="btn-save" type="submit">
+                                    <span class="material-symbols-outlined">send</span>
+                                    Create Lot & Send to Auction
+                                </button>
+                                <button class="btn-clear" type="reset" onclick="clearLookup()">
+                                    <span class="material-symbols-outlined">clear_all</span>
+                                    Clear Form
+                                </button>
+                            </section>
+                        </form>
+                    </div>
+
+                    <div class="grid-right right-panel">
+                        <div class="entries-box">
+                            <div class="entries-box-header">
+                                <h3 class="entries-box-title headline">My Shop's Lots</h3>
+                                <span class="badge-live label">LIVE QUEUE</span>
+                            </div>
+
+                            <div class="entry-list" id="rightPanelQueue">
+                                </div>
+                            <button class="btn-view-all body-font" onclick="openLotQueueModal(event)">View Full Queue</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="queue-modal" id="queueModal">
+                <div class="queue-modal-content">
+                    <div class="queue-modal-header">
+                        <h2 class="queue-modal-title">My Created Lots (सूची)</h2>
+                        <button class="queue-close-btn" onclick="closeLotQueueModal()">×</button>
+                    </div>
+
+                    <div class="queue-search">
+                        <input type="text" id="queueSearchInput" placeholder="Search by Lot ID, Farmer Name, or RST..." />
+                        <button onclick="searchQueue()">
+                            <span class="material-symbols-outlined" style="vertical-align: middle;">search</span> Search
+                        </button>
+                    </div>
+
+                    <table class="queue-table">
+                        <thead>
+                            <tr>
+                                <th>Lot ID</th>
+                                <th>RST Number</th>
+                                <th>Farmer Name</th>
+                                <th>Commodity</th>
+                                <th>Quantity & Scale</th>
+                                <th>Agent/Shop</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="queueTableBody">
+                            <tr class="queue-empty">
+                                <td colspan="8">No lots created yet.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="queue-modal" id="creationSuccessModal" style="display: none; align-items: center; justify-content: center;">
+                <div class="queue-modal-content" style="max-width: 500px; text-align: center; padding: 2.5rem 2rem;">
+                    <div style="background: var(--green-100); color: var(--green-700); width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                        <span class="material-symbols-outlined" style="font-size: 32px; font-variation-settings: 'wght' 700;">check_circle</span>
+                    </div>
+                    <h2 class="headline" style="color: var(--on-surface); margin-bottom: 0.5rem;">Lots Created Successfully!</h2>
+                    <p class="body-font" style="color: var(--on-surface-variant); margin-bottom: 2rem;">The following lots have been added to the Live Auction Queue.</p>
+                    
+                    <div id="success-lot-list" style="display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-bottom: 2rem;">
+                        <!-- JS Populated -->
+                    </div>
+
+                    <div style="text-align: left; background: var(--slate-50); border: 1px dashed var(--slate-300); border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 2rem;" id="success-farmer-info">
+                        <!-- JS Populated -->
+                    </div>
+
+                    <div style="display: flex; gap: 1rem;">
+                        <button class="btn-save" style="flex: 1;" onclick="window.print()">
+                            <span class="material-symbols-outlined">print</span> Print Token
+                        </button>
+                        <button class="btn-clear" style="flex: 1;" onclick="document.getElementById('creationSuccessModal').classList.remove('active');">
+                            Done
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="lotDetailsModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background-color: #ffffff; border-radius: 0.75rem; padding: 2rem; width: 90%; max-width: 500px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 class="headline" style="font-size: 1.25rem; color: var(--primary);" id="detailLotId">LOT-000</h2>
+                <button onclick="closeLotModal()" style="font-size: 1.5rem; cursor: pointer; background:none; border:none;">×</button>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div>
+                        <p style="font-size: 0.75rem; color: var(--on-surface-variant); text-transform: uppercase; font-weight: 700; margin-bottom: 0.25rem;">RST Number</p>
+                        <p class="headline" id="detailRst" style="font-size: 1rem;">--</p>
+                    </div>
+                    <div>
+                        <p style="font-size: 0.75rem; color: var(--on-surface-variant); text-transform: uppercase; font-weight: 700; margin-bottom: 0.25rem;">Status</p>
+                        <p id="detailStatus" class="status-pill pending" style="display: inline-block;">Awaiting Bid</p>
+                    </div>
+                </div>
+
+                <div>
+                    <p style="font-size: 0.75rem; color: var(--on-surface-variant); text-transform: uppercase; font-weight: 700; margin-bottom: 0.25rem;">Farmer Name</p>
+                    <p class="body-font" id="detailFarmer" style="font-size: 1rem;">--</p>
+                </div>
+
+                <div>
+                    <p style="font-size: 0.75rem; color: var(--on-surface-variant); text-transform: uppercase; font-weight: 700; margin-bottom: 0.25rem;">Agent / Shop</p>
+                    <p class="body-font" id="detailAgent" style="font-size: 1rem;">--</p>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div>
+                        <p style="font-size: 0.75rem; color: var(--on-surface-variant); text-transform: uppercase; font-weight: 700; margin-bottom: 0.25rem;">Commodity</p>
+                        <p class="body-font" id="detailCommodity" style="font-size: 1rem;">--</p>
+                    </div>
+                    <div>
+                        <p style="font-size: 0.75rem; color: var(--on-surface-variant); text-transform: uppercase; font-weight: 700; margin-bottom: 0.25rem;">Quantity & Scale</p>
+                        <p class="headline" id="detailBags" style="font-size: 1rem;">--</p>
+                    </div>
+                </div>
+
+                <div id="biddingDetailsSection" style="display: none; border-top: 1px solid var(--surface-container-high); padding-top: 1rem; margin-top: 1rem;">
+                    <div style="background-color: var(--green-100); padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+                        <p style="font-size: 0.75rem; color: var(--on-surface-variant); text-transform: uppercase; font-weight: 700; margin-bottom: 0.25rem;">Locked Price (per bag)</p>
+                        <p class="headline" id="detailLockedPrice" style="font-size: 1.5rem; color: var(--green-700);">₹--</p>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div>
+                            <p style="font-size: 0.75rem; color: var(--on-surface-variant); text-transform: uppercase; font-weight: 700; margin-bottom: 0.25rem;">Total Value</p>
+                            <p class="headline" id="detailTotalValue" style="font-size: 1.125rem; color: var(--primary);">₹--</p>
+                        </div>
+                        <div>
+                            <p style="font-size: 0.75rem; color: var(--on-surface-variant); text-transform: uppercase; font-weight: 700; margin-bottom: 0.25rem;">Winning Bidder</p>
+                            <p class="body-font" id="detailWinningBidder" style="font-size: 1rem;">--</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="closeLotModal()" style="width: 100%; margin-top: 1.5rem; padding: 1rem; background-color: var(--surface-container); color: var(--on-surface-variant); border-radius: 0.5rem; font-weight: 700; cursor: pointer; border:none;">Close</button>
+        </div>
+    </div>
+
+    <script>
+        let selectedFarmerData = null;
+        let bidCount = parseInt(localStorage.getItem('currentBidCount') || '0');
+
+
+
+        // --- SHOP PRIVACY LOGIC ---
+        function handleShopChange() {
+            const activeShop = document.getElementById('currentShopFilter').value;
+            localStorage.setItem('preBiddingActiveShop', activeShop);
+            document.getElementById('sidebarShopName').innerText = activeShop ? activeShop : 'Admin View';
+            
+            // Clear current lookup if shop changes
+            clearLookup();
+
+            loadRightPanelQueue();
+            if (document.getElementById('queueModal').classList.contains('active')) {
+                loadQueueTable();
+            }
+        }
+
+        // Run on load
+        window.addEventListener('load', function() {
+            const savedShop = localStorage.getItem('preBiddingActiveShop');
+            if(savedShop) {
+                document.getElementById('currentShopFilter').value = savedShop;
+                document.getElementById('sidebarShopName').innerText = savedShop;
+            }
+            loadRightPanelQueue();
+        });
+
+        function openSuccessModal(lotIds, data) {
+            const listContainer = document.getElementById('success-lot-list');
+            const infoContainer = document.getElementById('success-farmer-info');
+            
+            listContainer.innerHTML = lotIds.map(id => `
+                <span class="success-lot-badge">${id}</span>
+            `).join('');
+
+            infoContainer.innerHTML = `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.8125rem;">
+                    <span style="color: var(--slate-500); font-weight: 600;">RST Number:</span>
+                    <span style="font-weight: 700;">${data.rst}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.8125rem;">
+                    <span style="color: var(--slate-500); font-weight: 600;">Farmer:</span>
+                    <span style="font-weight: 700;">${data.farmer}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.8125rem;">
+                    <span style="color: var(--slate-500); font-weight: 600;">Active Shop:</span>
+                    <span style="font-weight: 700; color: var(--primary);">${data.agent}</span>
+                </div>
+            `;
+            
+            document.getElementById('creationSuccessModal').classList.add('active');
+        }
+
+        // --- RST LOOKUP WITH SECURITY CHECK ---
+        function lookupFarmerData() {
+            const rstInput = document.getElementById('rst_lookup').value.trim();
+            const statusEl = document.getElementById('rst-status');
+            const activeShop = document.getElementById('currentShopFilter').value;
+            
+            if (!rstInput) {
+                clearLookup();
+                return;
+            }
+
+            const currentFarmerEntries = JSON.parse(localStorage.getItem('farmerEntries') || '{}');
+            
+            if (currentFarmerEntries[rstInput]) {
+                const data = currentFarmerEntries[rstInput];
+                
+                // CRITICAL PRIVACY CHECK: Prevent Adatya from scanning someone else's gate pass
+                if (activeShop && data.agent !== activeShop) {
+                    statusEl.innerText = `✗ SECURITY BLOCK: This RST was assigned to ${data.agent} at the gate. You cannot create a lot for it.`;
+                    statusEl.style.color = 'var(--error)';
+                    clearFarmerFields();
+                    selectedFarmerData = null;
+                    return;
+                }
+
+                selectedFarmerData = data;
+                document.getElementById('vehicle_no_lookup').value = data.vehicle || '';
+                document.getElementById('farmer_name_lookup').value = data.farmer || '';
+                document.getElementById('farmer_village_lookup').value = data.village || '';
+                document.getElementById('agent_name_lookup').value = data.agent || '';
+                
+                const commoditiesContainer = document.getElementById('commodities_container');
+                commoditiesContainer.innerHTML = '';
+                
+                if (data.commodity && data.commodity !== 'N/A') {
+                    const commodities = data.commodity.split('\n');
+                    commodities.forEach((comm, index) => {
+                        const div = document.createElement('div');
+                        div.style.backgroundColor = 'var(--surface-container-low)';
+                        div.style.padding = '1rem';
+                        div.style.borderRadius = '0.5rem';
+                        div.style.display = 'grid';
+                        div.style.gridTemplateColumns = '1fr 1fr';
+                        div.style.gap = '1rem';
+                        div.style.border = '1px solid var(--surface-container-high)';
+                        
+                        div.innerHTML = `
+                            <div class="input-group">
+                                <label class="input-label label">Commodity ${index + 1}</label>
+                                <input class="form-control body-font commodity-name-input" type="text" disabled value="${comm.trim()}">
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                                <div class="input-group">
+                                    <label class="input-label label">Quantity</label>
+                                    <input class="form-control body-font bag-quantity-input" placeholder="e.g. 55" type="number" min="1" required />
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label label">Scale (माप)</label>
+                                    <select class="form-control body-font commodity-scale-input" required>
+                                        <option value="Bags">Bags (नग)</option>
+                                        <option value="Quintal">Quintal</option>
+                                        <option value="Kg">Kg</option>
+                                    </select>
+                                </div>
+                            </div>
+                        `;
+                        commoditiesContainer.appendChild(div);
+                    });
+                } else {
+                    commoditiesContainer.innerHTML = '<p class="helper-text label" style="color: var(--error);">No commodities found.</p>';
+                }
+                
+                statusEl.innerText = '✓ Inward details fetched and verified successfully';
+                statusEl.style.color = 'var(--green-700)';
+            } else {
+                clearFarmerFields();
+                statusEl.innerText = '✗ Gate Pass (RST) not found in system';
+                statusEl.style.color = 'var(--error)';
+                selectedFarmerData = null;
+            }
+        }
+
+        // --- SUBMITTING A NEW LOT ---
+        function addBiddingEntry() {
+            if (!selectedFarmerData) {
+                alert('Please fetch a valid Gate Pass (RST Number) for your shop first.');
+                return;
+            }
+
+            const commoditiesContainer = document.getElementById('commodities_container');
+            const commInputs = commoditiesContainer.querySelectorAll('.commodity-name-input');
+            const bagInputs = commoditiesContainer.querySelectorAll('.bag-quantity-input');
+            const scaleInputs = commoditiesContainer.querySelectorAll('.commodity-scale-input');
+            
+            if (commInputs.length === 0) {
+                alert('No commodities found to create lots.');
+                return;
+            }
+
+            for (let i = 0; i < bagInputs.length; i++) {
+                const qty = parseInt(bagInputs[i].value);
+                if (!qty || qty <= 0) {
+                    alert('Please enter a valid number of bags for all commodities.');
+                    return;
+                }
+            }
+
+            const rst = document.getElementById('rst_lookup').value;
+            const farmer = document.getElementById('farmer_name_lookup').value;
+            const agent = document.getElementById('agent_name_lookup').value;
+
+            let allLots = JSON.parse(localStorage.getItem('auctionLots') || '{}');
+            let createdLots = [];
+
+            for (let i = 0; i < commInputs.length; i++) {
+                const comm = commInputs[i].value;
+                const quantity = parseInt(bagInputs[i].value);
+                const scale = scaleInputs[i].value;
+                
+                bidCount++;
+                const lotId = 'LOT-' + String(100 + bidCount).slice(-3);
+                localStorage.setItem('currentBidCount', bidCount.toString());
+
+                const biddingData = {
+                    lotId: lotId, rst: rst, farmer: farmer, agent: agent,
+                    village: selectedFarmerData.village || '',
+                    vehicle: selectedFarmerData.vehicle || '',
+                    commodity: comm, quantity: quantity, scale: scale, status: 'Awaiting Bidding',
+                    timestamp: new Date().toISOString()
+                };
+
+                allLots[lotId] = biddingData;
+                createdLots.push(lotId);
+            }
+
+            localStorage.setItem('auctionLots', JSON.stringify(allLots));
+
+            const successData = {
+                rst: rst,
+                farmer: farmer,
+                agent: agent
+            };
+
+            clearLookup();
+            loadRightPanelQueue();
+            
+            if (document.getElementById('queueModal').classList.contains('active')) {
+                loadQueueTable();
+            }
+
+            openSuccessModal(createdLots, successData);
+        }
+
+        // --- RIGHT PANEL RENDER (FILTERED) ---
+        function loadRightPanelQueue() {
+            const allLots = JSON.parse(localStorage.getItem('auctionLots') || '{}');
+            const biddingResults = JSON.parse(localStorage.getItem('biddingResults') || '{}');
+            const entryList = document.getElementById('rightPanelQueue');
+            const activeShop = document.getElementById('currentShopFilter').value;
+            
+            entryList.innerHTML = '';
+            let count = 0;
+
+            // Reverse to show newest at the top
+            Object.keys(allLots).reverse().forEach(lotId => {
+                const lot = allLots[lotId];
+                
+                // SHOP PRIVACY FILTER
+                if (activeShop && lot.agent !== activeShop) return;
+
+                count++;
+                const hasBiddingData = biddingResults[lotId];
+                const statusClass = hasBiddingData ? 'complete' : 'pending';
+                const statusText = hasBiddingData ? 'Bidding Completed' : 'Awaiting Bidding';
+
+                const entryCard = document.createElement('div');
+                entryCard.className = 'entry-card';
+                entryCard.onclick = () => displayLotDetails(lotId);
+                
+                entryCard.innerHTML = `
+                    <div class="entry-card-header">
+                        <span class="entry-id headline">${lotId}</span>
+                        <span class="status-pill ${statusClass}">${statusText}</span>
+                    </div>
+                    <div>
+                        <p class="entry-vehicle headline">${lot.commodity} - ${lot.quantity ? (lot.quantity + ' ' + lot.scale) : (lot.bags + ' Bags')}</p>
+                        <p class="entry-desc body-font">${lot.farmer} • Shop: ${lot.agent}</p>
+                    </div>
+                `;
+                entryList.appendChild(entryCard);
+            });
+
+            if (count === 0) {
+                entryList.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: var(--slate-400);">
+                        <span class="material-symbols-outlined" style="font-size: 2rem; margin-bottom: 0.5rem;">inventory</span>
+                        <p>No lots generated for this shop yet.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // --- MODAL QUEUE (FILTERED) ---
+        let allQueueLots = [];
+
+        function loadQueueTable() {
+            const allLots = JSON.parse(localStorage.getItem('auctionLots') || '{}');
+            const biddingResults = JSON.parse(localStorage.getItem('biddingResults') || '{}');
+            const tableBody = document.getElementById('queueTableBody');
+            const activeShop = document.getElementById('currentShopFilter').value;
+            
+            tableBody.innerHTML = '';
+            allQueueLots = [];
+
+            for (const [lotId, lotData] of Object.entries(allLots)) {
+                // SHOP PRIVACY FILTER
+                if (activeShop && lotData.agent !== activeShop) continue;
+
+                const displayQty = lotData.quantity ? `${lotData.quantity} ${lotData.scale}` : `${lotData.bags} Bags`;
+                const hasBiddingData = biddingResults[lotId];
+                allQueueLots.push({
+                    lotId: lotId, rst: lotData.rst, farmer: lotData.farmer,
+                    commodity: lotData.commodity, displayQty: displayQty, agent: lotData.agent,
+                    status: hasBiddingData ? 'Bidding Completed' : 'Awaiting Bidding',
+                    statusClass: hasBiddingData ? 'complete' : 'pending',
+                });
+            }
+
+            allQueueLots.sort((a, b) => parseInt(b.lotId.split('-')[1]) - parseInt(a.lotId.split('-')[1]));
+
+            if (allQueueLots.length === 0) {
+                tableBody.innerHTML = '<tr class="queue-empty"><td colspan="8">No lots found.</td></tr>';
+                return;
+            }
+
+            renderQueueRows(allQueueLots);
+        }
+
+        function searchQueue() {
+            const searchText = document.getElementById('queueSearchInput').value.toLowerCase();
+            if (!searchText) { loadQueueTable(); return; }
+
+            const filtered = allQueueLots.filter(lot =>
+                lot.lotId.toLowerCase().includes(searchText) || lot.rst.toLowerCase().includes(searchText) ||
+                lot.farmer.toLowerCase().includes(searchText) || lot.commodity.toLowerCase().includes(searchText)
+            );
+
+            const tableBody = document.getElementById('queueTableBody');
+            if (filtered.length === 0) {
+                tableBody.innerHTML = '<tr class="queue-empty"><td colspan="8">No matching lots found.</td></tr>';
+                return;
+            }
+            renderQueueRows(filtered);
+        }
+
+        function renderQueueRows(dataArray) {
+            const tableBody = document.getElementById('queueTableBody');
+            tableBody.innerHTML = '';
+            dataArray.forEach(lot => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${lot.lotId}</strong></td>
+                    <td>${lot.rst}</td><td>${lot.farmer}</td><td>${lot.commodity}</td>
+                    <td>${lot.displayQty}</td><td>${lot.agent}</td>
+                    <td><span class="queue-status ${lot.statusClass}">${lot.status}</span></td>
+                    <td><button class="btn-view-receipt" onclick="viewLotFromQueue('${lot.lotId}')">View Details</button></td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // --- UTILITY FUNCTIONS ---
+        function clearFarmerFields() {
+            document.getElementById('vehicle_no_lookup').value = '';
+            document.getElementById('farmer_name_lookup').value = '';
+            document.getElementById('farmer_village_lookup').value = '';
+            document.getElementById('agent_name_lookup').value = '';
+            document.getElementById('commodities_container').innerHTML = `
+                <div class="input-group">
+                    <p class="helper-text label" style="font-size: 0.875rem;">Fetch an RST to load commodities.</p>
+                </div>
+            `;
+        }
+
+        function clearLookup() {
+            document.getElementById('commodity-form').reset();
+            clearFarmerFields();
+            document.getElementById('rst-status').innerText = '';
+            selectedFarmerData = null;
+        }
+
+
+
+        function openLotQueueModal(event) { if (event) event.preventDefault(); loadQueueTable(); document.getElementById('queueModal').classList.add('active'); }
+        function closeLotQueueModal() { document.getElementById('queueModal').classList.remove('active'); }
+        function viewLotFromQueue(lotId) { closeLotQueueModal(); displayLotDetails(lotId); }
+        function closeLotModal() { document.getElementById('lotDetailsModal').style.display = 'none'; }
+
+        function displayLotDetails(lotId) {
+            const lot = JSON.parse(localStorage.getItem('auctionLots') || '{}')[lotId];
+            if (!lot) return;
+
+            document.getElementById('detailLotId').innerText = lotId;
+            document.getElementById('detailRst').innerText = lot.rst || '--';
+            document.getElementById('detailFarmer').innerText = lot.farmer || '--';
+            document.getElementById('detailAgent').innerText = lot.agent || '--';
+            document.getElementById('detailCommodity').innerText = lot.commodity || '--';
+            document.getElementById('detailBags').innerText = lot.quantity ? `${lot.quantity} ${lot.scale}` : (lot.bags ? `${lot.bags} Bags` : '--');
+
+            const biddingData = JSON.parse(localStorage.getItem('biddingResults') || '{}')[lotId];
+            const detailStatus = document.getElementById('detailStatus');
+            const biddingDetailsSection = document.getElementById('biddingDetailsSection');
+
+            if (biddingData && biddingData.lockedPrice) {
+                detailStatus.className = 'status-pill complete'; detailStatus.innerText = 'Bidding Completed';
+                biddingDetailsSection.style.display = 'block';
+                document.getElementById('detailLockedPrice').innerText = '₹' + biddingData.lockedPrice;
+                const lotQty = lot.quantity || lot.bags || 0;
+                document.getElementById('detailTotalValue').innerText = '₹' + (biddingData.lockedPrice * lotQty);
+                document.getElementById('detailWinningBidder').innerText = biddingData.winningBidder || '--';
+            } else {
+                detailStatus.className = 'status-pill pending'; detailStatus.innerText = 'Awaiting Bidding';
+                biddingDetailsSection.style.display = 'none';
+            }
+
+            document.getElementById('lotDetailsModal').style.display = 'flex';
+        }
+
+        document.getElementById('commodity-form').addEventListener('submit', function (e) { e.preventDefault(); addBiddingEntry(); });
+
+        
+        const queueSearchInput = document.getElementById('queueSearchInput');
+        if (queueSearchInput) queueSearchInput.addEventListener('keypress', function(e) { if (e.key === 'Enter') searchQueue(); });
+    </script>
+</body>
+</html>

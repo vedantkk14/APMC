@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Hishobpatti - APMC Accounts</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;700;900&family=Work+Sans:wght@400;600;700&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <style>
+        /* Same UI CSS Variables */
+        :root {
+            --background: #f8f9fa;
+            --surface: #f8f9fa;
+            --on-primary: #ffffff;
+            --primary: #004493;
+            --primary-fixed: #d8e2ff;
+            --on-surface: #191c1d;
+            --surface-container: #edeeef;
+            --surface-container-high: #e7e8e9;
+            --primary-container: #235cb2;
+            --surface-container-lowest: #ffffff;
+            --outline-variant: #c3c6d6;
+            --secondary: #4c616c;
+            --outline: #737785;
+            --surface-container-low: #f3f4f5;
+            --on-surface-variant: #424654;
+            --slate-50: #f8fafc;
+            --slate-100: #f1f5f9;
+            --slate-200: #e2e8f0;
+            --slate-400: #94a3b8;
+            --slate-500: #64748b;
+            --slate-600: #475569;
+            --blue-600: #2563eb;
+            --blue-800: #1e40af;
+            --green-100: #dcfce3;
+            --green-500: #22c55e;
+            --green-600: #16a34a;
+            --green-700: #15803d;
+            --amber-100: #fef3c7;
+            --amber-500: #f59e0b;
+            --amber-700: #b45309;
+            --red-600: #dc2626;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--surface);
+            font-family: 'Work Sans', sans-serif;
+            color: var(--on-surface);
+            padding-bottom: 4rem;
+        }
+
+        @media (min-width: 768px) {
+            body {
+                padding-bottom: 0;
+            }
+        }
+
+        .headline {
+            font-family: 'Public Sans', sans-serif;
+        }
+
+        .label {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+
+        button,
+        input,
+        select {
+            font-family: inherit;
+        }
+
+        /* App Layout & Nav */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 0 1.5rem;
+            height: 4rem;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background-color: #ffffff;
+            border-bottom: 1px solid var(--slate-200);
+        }
+
+        .nav-brand {
+            font-size: 1.25rem;
+            font-weight: 900;
+            color: var(--primary);
+        }
+
+        .app-wrapper {
+            display: flex;
+            min-height: calc(100vh - 4rem);
+        }
+
+        .sidebar {
+            display: none;
+            flex-direction: column;
+            width: 256px;
+            border-right: 1px solid var(--slate-200);
+            background-color: var(--slate-50);
+            flex-shrink: 0;
+            position: fixed;
+            height: calc(100vh - 4rem);
+            left: 0;
+            top: 4rem;
+            z-index: 40;
+        }
+
+        @media (min-width: 768px) {
+            .sidebar {
+                display: flex;
+            }
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+        }
+
+        .sidebar-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .sidebar-subtitle {
+            font-size: 0.75rem;
+            color: var(--on-surface-variant);
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 0 0.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .sidebar-link {
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-radius: 0.375rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .sidebar-link.active {
+            background-color: var(--primary);
+            color: #ffffff;
+        }
+
+        /* Modal and Button Styles */
+        .btn-past-data {
+            background-color: var(--green-600);
+            color: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-weight: 700;
+            width: 90%;
+            margin: 1rem auto;
+            display: block;
+            cursor: pointer;
+            border: none;
+            font-size: 0.875rem;
+            transition: background-color 0.2s;
+        }
+
+        .btn-past-data:hover {
+            background-color: var(--green-700);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            max-width: 900px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--primary);
+        }
+
+        .btn-close-modal {
+            background: none;
+            color: var(--on-surface);
+            font-size: 1.5rem;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .past-data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .past-data-table th {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 700;
+        }
+
+        .past-data-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--slate-200);
+        }
+
+        .past-data-table tbody tr {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .past-data-table tbody tr:hover {
+            background-color: var(--slate-100);
+        }
+
+        .past-data-empty {
+            text-align: center;
+            padding: 2rem;
+            color: var(--on-surface-variant);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 1rem;
+        }
+
+        @media (min-width: 768px) {
+            .main-content {
+                margin-left: 256px;
+                padding: 2rem;
+            }
+        }
+
+        .max-w-container {
+            max-width: 80rem;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            margin-bottom: 2.5rem;
+        }
+
+        .page-title {
+            font-size: 1.875rem;
+            font-weight: 900;
+            color: var(--primary);
+            text-transform: uppercase;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2.5rem;
+        }
+
+        @media (min-width: 1024px) {
+            .main-grid {
+                grid-template-columns: repeat(12, minmax(0, 1fr));
+            }
+
+            .grid-left {
+                grid-column: span 5 / span 5;
+            }
+
+            .grid-right {
+                grid-column: span 7 / span 7;
+            }
+        }
+
+        /* Left Form */
+        .form-section {
+            background-color: var(--surface-container-lowest);
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--slate-200);
+        }
+
+        .section-title {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: var(--on-surface-variant);
+            text-transform: uppercase;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .input-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--on-surface-variant);
+            text-transform: uppercase;
+        }
+
+        .form-control {
+            width: 100%;
+            background-color: var(--slate-100);
+            border: none;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            font-size: 1.125rem;
+            font-weight: 700;
+            outline: none;
+            border-bottom: 2px solid transparent;
+        }
+
+        .form-control:focus {
+            border-bottom: 2px solid var(--primary);
+            background-color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-control.small-input {
+            padding: 0.75rem;
+            font-size: 1rem;
+            text-align: right;
+        }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .btn-fetch {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-weight: 700;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        /* Right Receipt */
+        .receipt-container {
+            background-color: white;
+            padding: 2.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            border-top: 8px solid var(--primary);
+            position: sticky;
+            top: 6rem;
+            color: #000;
+        }
+
+        .marathi-header {
+            text-align: center;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #000;
+            padding-bottom: 1rem;
+            position: relative;
+        }
+
+        .m-title {
+            font-size: 1.25rem;
+            font-weight: 900;
+            margin-bottom: 0.25rem;
+        }
+
+        .m-subtitle {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .m-parishisht {
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .book-no-label {
+            position: absolute;
+            top: 0;
+            right: 0;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .r-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .r-info-grid div {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .r-info-val {
+            font-weight: 700;
+            border-bottom: 1px dashed #000;
+            flex: 1;
+            padding-bottom: 2px;
+        }
+
+        .r-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+            border: 2px solid #000;
+        }
+
+        .r-table th,
+        .r-table td {
+            border: 1px solid #000;
+            padding: 0.5rem;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .r-table th {
+            background-color: #f8f9fa;
+        }
+
+        /* Deductions Box */
+        .deductions-box {
+            display: flex;
+            border: 2px solid #000;
+            margin-bottom: 1.5rem;
+        }
+
+        .d-col {
+            flex: 1;
+            border-right: 1px solid #000;
+            padding: 0.5rem;
+        }
+
+        .d-col:last-child {
+            border-right: none;
+        }
+
+        .d-title {
+            font-weight: bold;
+            border-bottom: 1px solid #000;
+            padding-bottom: 0.5rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .d-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .net-payable-box {
+            border: 2px solid #000;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            background: #f8f9fa;
+        }
+
+        .net-label {
+            font-size: 1.1rem;
+            font-weight: 900;
+        }
+
+        .net-amount {
+            font-size: 1.5rem;
+            font-weight: 900;
+        }
+
+        .signature-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 3rem;
+            font-weight: bold;
+            padding: 0 1rem;
+        }
+
+        .button-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn-save,
+        .btn-print {
+            color: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-weight: 900;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-save {
+            background-color: var(--primary);
+        }
+
+        .btn-print {
+            background-color: var(--green-600);
+        }
+
+        /* Print Styles */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            .receipt-container,
+            .receipt-container * {
+                visibility: visible;
+            }
+
+            .receipt-container {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                border: none;
+                box-shadow: none;
+                padding: 0;
+            }
+
+            .button-container {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="top-nav">
+        <div class="nav-brand">APMC Market</div>
+    </nav>
+
+    <div class="app-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="sidebar-title">Lekha Vibhag</h1>
+            </div>
+            <nav class="sidebar-nav">
+                <a class="sidebar-link active" href="#"><span>Hishobpatti (Bill)</span></a>
+            </nav>
+
+            <button class="btn-past-data" onclick="openPastDataModal()">📋 Past Data</button>
+        </aside>
+
+        <main class="main-content">
+            <div class="max-w-container">
+                <header class="page-header">
+                    <h1 class="page-title headline">Hishobpatti (हिशोबपट्टी)</h1>
+                </header>
+
+                <div class="main-grid">
+                    <div class="grid-left">
+                        <section class="form-section" style="border-left: 4px solid var(--primary);">
+                            <div class="section-header">
+                                <h2 class="section-title label">1. Fetch Sold Lot</h2>
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">Enter Lot ID (e.g., LOT-101)</label>
+                                <input class="form-control" id="searchLotId" placeholder="LOT-XXX" type="text" />
+                                <button class="btn-fetch" onclick="fetchTransaction()">Load Data</button>
+                            </div>
+                            <div class="input-group" id="sales-selection-group"
+                                style="display: none; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 2px dashed var(--slate-200);">
+                                <label class="input-label" style="font-size: 0.8rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem;">
+                                    <span class="material-symbols-outlined" style="font-size: 1.1rem; color: inherit;">receipt_long</span>
+                                    <span id="sales-dropdown-label-text">Select Transaction</span>
+                                </label>
+                                <select class="form-control body-font" id="salesDropdown" onchange="loadSelectedSale()"
+                                    style="font-weight: 600; font-size: 0.85rem; cursor: pointer; border: 2px solid var(--slate-300); background-color: white; padding: 0.75rem; border-radius: 0.5rem; width: 100%; max-width: 100%; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+                                </select>
+                            </div>
+                        </section>
+
+                        <section class="form-section" style="border-left: 4px solid var(--blue-600);">
+                            <div class="section-header">
+                                <h2 class="section-title label">2. Additional Info</h2>
+                            </div>
+                            <div class="config-grid">
+                                <div class="input-group">
+                                    <label class="input-label">Book No. (बुक नं.)</label>
+                                    <input class="form-control" id="cfg_book_no" type="text" placeholder="12345"
+                                        oninput="updateAdditionalInfo()" />
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">Taluka (ता.)</label>
+                                    <input class="form-control" id="cfg_taluka" type="text"
+                                        placeholder="e.g., Majalgaon" oninput="updateAdditionalInfo()" />
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="form-section" style="border-left: 4px solid var(--amber-500);">
+                            <div class="section-header">
+                                <h2 class="section-title label">3. Deduction Rates (खर्चाचा तपशील)</h2>
+                            </div>
+                            <div class="config-grid">
+                                <div class="input-group">
+                                    <label class="input-label">आडत (Adat) %</label>
+                                    <input class="form-control small-input" id="cfg_adat" type="number" step="0.1"
+                                        value="2.0" oninput="calculateBill()" />
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">हमाली (Hamali) ₹/Bag</label>
+                                    <input class="form-control small-input" id="cfg_hamali" type="number" step="0.5"
+                                        value="3.0" oninput="calculateBill()" />
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">तोलाई (Tolai) ₹/Qtl</label>
+                                    <input class="form-control small-input" id="cfg_tolai" type="number" step="0.5"
+                                        value="5.0" oninput="calculateBill()" />
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">इतर खर्च (Itar/Other) %</label>
+                                    <input class="form-control small-input" id="cfg_itar" type="number" step="0.1"
+                                        value="1.0" oninput="calculateBill()" />
+                                </div>
+                            </div>
+
+                            <div class="input-group"
+                                style="margin-top: 1.5rem; border-top: 1px solid var(--slate-200); padding-top: 1rem;">
+                                <label class="input-label" style="color: var(--green-600);">Actual Net Weight
+                                    (kg)</label>
+                                <input class="form-control small-input" id="manual_net_wt" type="number"
+                                    placeholder="Fetched from gate..." oninput="calculateBill()" />
+                            </div>
+                        </section>
+
+                        <section class="form-section" style="border-left: 4px solid var(--slate-600);">
+                            <div class="section-header">
+                                <h2 class="section-title label">4. Inventory / Balance (शिल्लक माहिती)</h2>
+                            </div>
+                            <div class="config-grid">
+                                <div class="input-group">
+                                    <label class="input-label">Prev. Balance (मागील शिल्लक)</label>
+                                    <input class="form-control small-input" id="cfg_prev_bal" type="number" value="0"
+                                        oninput="calculateBalance()" />
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">Inward (आवक)</label>
+                                    <input class="form-control small-input" id="cfg_inward" type="number" value="0"
+                                        oninput="calculateBalance()" />
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">Sales (विक्री)</label>
+                                    <input class="form-control small-input" id="cfg_sales" type="number" value="0"
+                                        oninput="calculateBalance()" />
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+
+                    <div class="grid-right">
+                        <div class="receipt-container" id="printable-receipt">
+                            <div class="marathi-header">
+                                <div class="book-no-label">बुक नं.: <span id="r_book_no"
+                                        style="font-weight: 500; border-bottom: 1px dashed #000; min-width: 50px; display: inline-block;"></span>
+                                </div>
+                                <div class="m-parishisht">परिशिष्ट क्र. ६ (उपविधी ९६ नुसार)</div>
+                                <h2 class="m-title">उच्चतम कृषी उत्पन्न बाजार समिती माजलगाव, जि. बीड</h2>
+                                <p class="m-subtitle">आडत्याने शेतकऱ्याच्या शेतीमाल विक्री केलेल्या मालासंबंधी द्यावयाची
+                                    हिशोबपट्टी</p>
+                            </div>
+
+                            <div class="r-info-grid">
+                                <div><span>आडत्याचे नाव:</span> <span class="r-info-val" id="r_agent"></span></div>
+                                <div><span>दिनांक:</span> <span class="r-info-val" id="r_date"></span></div>
+                                <div style="grid-column: span 2;"><span>खरेदीदाराचे नाव:</span> <span class="r-info-val"
+                                        id="r_trader"></span></div>
+                                <div><span>शेतकऱ्याचे नाव:</span> <span class="r-info-val" id="r_farmer"></span></div>
+
+                                <div
+                                    style="grid-column: span 2; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                    <div><span>गाव:</span> <span class="r-info-val" id="r_village"></span></div>
+                                    <div><span>ता.:</span> <span class="r-info-val" id="r_taluka"></span></div>
+                                </div>
+
+                                <div><span>वाहन नं.:</span> <span class="r-info-val" id="r_vehicle"></span></div>
+                                <div><span>लॉट क्र.:</span> <span class="r-info-val" id="r_lot"></span></div>
+                            </div>
+
+                            <table class="r-table">
+                                <thead>
+                                    <tr>
+                                        <th>नगाची संख्या (Bags)</th>
+                                        <th>मालाचा प्रकार (Commodity)</th>
+                                        <th>नक्की वजन (Quintals)</th>
+                                        <th>दर (Rate)</th>
+                                        <th>एकूण रक्कम (₹)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td id="r_bags">0</td>
+                                        <td id="r_commodity">--</td>
+                                        <td id="r_quintals">0.00</td>
+                                        <td id="r_rate">0.00</td>
+                                        <td id="r_gross">0.00</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <p style="font-weight:bold; margin-bottom:0.5rem;">खर्चाचा तपशील (Deductions):</p>
+                            <div class="deductions-box">
+                                <div class="d-col">
+                                    <div class="d-title">आडत (Adat)</div>
+                                    <div class="d-row"><span>रक्कम:</span> <span id="r_adat_val">0.00</span></div>
+                                </div>
+                                <div class="d-col">
+                                    <div class="d-title">हमाली (Hamali)</div>
+                                    <div class="d-row"><span>रक्कम:</span> <span id="r_hamali_val">0.00</span></div>
+                                </div>
+                                <div class="d-col">
+                                    <div class="d-title">तोलाई (Tolai)</div>
+                                    <div class="d-row"><span>रक्कम:</span> <span id="r_tolai_val">0.00</span></div>
+                                </div>
+                                <div class="d-col">
+                                    <div class="d-title">इतर खर्च (Itar)</div>
+                                    <div class="d-row"><span>रक्कम:</span> <span id="r_itar_val">0.00</span></div>
+                                </div>
+                                <div class="d-col" style="background:#f8f9fa;">
+                                    <div class="d-title">एकूण खर्च</div>
+                                    <div class="d-row"><span>Total:</span> <span id="r_total_deduct">0.00</span></div>
+                                </div>
+                            </div>
+
+                            <table class="r-table" style="margin-bottom: 1.5rem; margin-top: 1.5rem;">
+                                <thead>
+                                    <tr>
+                                        <th>मागील शिल्लक<br><small>(Prev Balance)</small></th>
+                                        <th>आवक<br><small>(Inward)</small></th>
+                                        <th>एकूण<br><small>(Total)</small></th>
+                                        <th>विक्री<br><small>(Sales)</small></th>
+                                        <th>अखेर शिल्लक<br><small>(Final Balance)</small></th>
+                                    </tr>
+
+                                </thead>
+
+                                <tbody>
+                                    <tr>
+                                        <td id="r_prev_bal">0</td>
+                                        <td id="r_inward">0</td>
+                                        <td id="r_total_bal">0</td>
+                                        <td id="r_sales">0</td>
+                                        <td id="r_final_bal" style="font-weight: 800;">0</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div class="net-payable-box">
+                                <div class="net-label">शेतकऱ्यास द्यावयाची नक्की रक्कम (Net Payable):</div>
+                                <div class="net-amount">₹ <span id="r_net_payable">0.00</span>/-</div>
+                            </div>
+
+                            <div class="signature-row">
+                                <div>सही / अंगठा (खरेदीदार)</div>
+                                <div>सही / अंगठा (आडत्या)</div>
+                            </div>
+
+                            <div class="button-container">
+                                <button class="btn-save" onclick="saveTransaction()">Save Data</button>
+                                <button class="btn-print" onclick="printAndSave()">Print</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="modal-overlay" id="pastDataModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">📋 Saved Bills History</h2>
+                <button class="btn-close-modal" onclick="closePastDataModal()">✕</button>
+            </div>
+            <table class="past-data-table">
+                <thead>
+                    <tr>
+                        <th>Lot ID</th>
+                        <th>Date</th>
+                        <th>Farmer Name</th>
+                        <th>Trader Name</th>
+                        <th>Net Payable (₹)</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="past-data-tbody">
+                    <tr>
+                        <td colspan="6" class="past-data-empty">No saved bills yet</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let currentTransaction = null;
+
+        function openPastDataModal() {
+            loadPastDataTable();
+            document.getElementById('pastDataModal').classList.add('active');
+        }
+
+        function closePastDataModal() {
+            document.getElementById('pastDataModal').classList.remove('active');
+        }
+
+        function loadPastDataTable() {
+            const clearedHistory = JSON.parse(localStorage.getItem('clearedTransactions') || '{}');
+            const tbody = document.getElementById('past-data-tbody');
+            tbody.innerHTML = '';
+
+            if (Object.keys(clearedHistory).length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="past-data-empty">No saved bills yet</td></tr>';
+                return;
+            }
+
+            Object.keys(clearedHistory).reverse().forEach(lotId => {
+                const transaction = clearedHistory[lotId];
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${lotId}</strong></td>
+                    <td>${transaction.date || 'N/A'}</td>
+                    <td>${transaction.farmer || 'N/A'}</td>
+                    <td>${transaction.trader || 'N/A'}</td>
+                    <td>₹ ${transaction.netPayable || 0}</td>
+                    <td><button class="btn-fetch" style="padding: 0.5rem 1rem; font-size: 0.75rem;" onclick="reloadSavedTransactionFromModal('${lotId}')">Load</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function reloadSavedTransactionFromModal(lotId) {
+            const clearedHistory = JSON.parse(localStorage.getItem('clearedTransactions') || '{}');
+            const transaction = clearedHistory[lotId];
+            if (transaction) {
+                reloadSavedTransaction(transaction);
+                closePastDataModal();
+            }
+        }
+
+        function loadSavedTransactionsHistory() { }
+
+        function reloadSavedTransaction(transaction) {
+            currentTransaction = transaction;
+
+            document.getElementById('searchLotId').value = transaction.lotId;
+            document.getElementById('manual_net_wt').value = transaction.netWeightKg || transaction.weightKg;
+            document.getElementById('r_farmer').innerText = transaction.farmer;
+            document.getElementById('r_village').innerText = transaction.village;
+            document.getElementById('r_vehicle').innerText = transaction.vehicle;
+            document.getElementById('r_lot').innerText = transaction.lotId;
+            document.getElementById('r_date').innerText = transaction.date;
+            document.getElementById('r_agent').innerText = transaction.agent;
+            document.getElementById('r_trader').innerText = transaction.trader;
+            document.getElementById('r_commodity').innerText = transaction.commodity;
+            document.getElementById('r_rate').innerText = transaction.ratePerQuintal.toLocaleString('en-IN');
+            document.getElementById('r_bags').innerText = transaction.bags;
+
+            // Restoring new fields if they existed
+            if (transaction.bookNo) document.getElementById('cfg_book_no').value = transaction.bookNo;
+            if (transaction.taluka) document.getElementById('cfg_taluka').value = transaction.taluka;
+
+            updateAdditionalInfo();
+            calculateBill();
+            calculateBalance(); // Trigger balance calc
+            window.scrollTo({ top: document.querySelector('.grid-right').offsetTop, behavior: 'smooth' });
+        }
+
+        function fetchTransaction() {
+            const searchInput = document.getElementById('searchLotId').value.trim().toUpperCase();
+            if (!searchInput) { alert("Enter a Lot ID or RST Number"); return; }
+
+            const allLots = JSON.parse(localStorage.getItem('auctionLots') || '{}');
+            const farmerEntries = JSON.parse(localStorage.getItem('farmerEntries') || '{}');
+            const biddingResults = JSON.parse(localStorage.getItem('biddingResults') || '{}');
+            const completedWeighings = JSON.parse(localStorage.getItem('completedWeighings') || '[]');
+
+            let matchedLots = [];
+
+            if (allLots[searchInput]) {
+                matchedLots.push({ id: searchInput, data: allLots[searchInput] });
+            } else {
+                for (const [id, data] of Object.entries(allLots)) {
+                    if ((data.rst && data.rst.toUpperCase() === searchInput) || (id.toUpperCase() === searchInput)) {
+                        matchedLots.push({ id: id, data: data });
+                    }
+                }
+            }
+
+            if (matchedLots.length === 0) { alert("Lot ID or RST Number not found!"); return; }
+
+            let allSales = [];
+
+            matchedLots.forEach(match => {
+                let lotData = match.data;
+                const bidData = biddingResults[match.id];
+
+                if (!lotData.sales || lotData.sales.length === 0) {
+                    // Fallback to old format
+                    if (lotData.winningTrader && lotData.ratePerQuintal) {
+                        lotData.sales = [{
+                            trader: lotData.winningTrader, rate: lotData.ratePerQuintal, scale: lotData.scale || 'Quintal',
+                            quantity: lotData.quantity || lotData.bags, timestamp: new Date().toISOString()
+                        }];
+                    } else if (bidData && bidData.lockedPrice) {
+                        lotData.sales = [{
+                            trader: bidData.winningBidder, rate: bidData.lockedPrice, scale: bidData.scale || 'Quintal',
+                            quantity: bidData.saleQty || lotData.quantity || lotData.bags, timestamp: bidData.timestamp || new Date().toISOString()
+                        }];
+                    }
+                }
+
+                if (lotData.sales && lotData.sales.length > 0) {
+                    lotData.sales.forEach((sale, index) => {
+                        allSales.push({ lotId: match.id, lotData: lotData, saleIndex: index, sale: sale });
+                    });
+                }
+            });
+
+            if (allSales.length === 0) { alert("Bidding not completed for any matching lot!"); return; }
+
+            const salesDropdownGroup = document.getElementById('sales-selection-group');
+            const salesDropdown = document.getElementById('salesDropdown');
+            salesDropdown.innerHTML = '';
+
+            allSales.forEach((saleObj, i) => {
+                const opt = document.createElement('option');
+                opt.value = i;
+                
+                // Keep the dropdown text clean and well-structured, optimized for mobile width
+                const commShort = saleObj.lotData.commodity ? saleObj.lotData.commodity.split('(')[0].split('-')[0].trim() : 'N/A';
+                const lotShort = saleObj.lotId.replace('LOT-', '#');
+                
+                // Shorten long trader names (e.g. "Shivam Trading Co." -> "Shivam Trading")
+                const traderWords = saleObj.sale.trader.split(' ');
+                const traderShort = traderWords.length > 2 ? `${traderWords[0]} ${traderWords[1]}` : saleObj.sale.trader;
+
+                opt.text = `${lotShort} • ${saleObj.sale.quantity}${saleObj.sale.scale === 'Quintal' ? 'QTL' : 'Bgs'} @ ₹${saleObj.sale.rate} • ${traderShort} (${commShort})`;
+                
+                salesDropdown.appendChild(opt);
+            });
+
+            window.activeSalesList = allSales;
+
+            const salesLabel = salesDropdownGroup.querySelector('.input-label');
+            const labelText = document.getElementById('sales-dropdown-label-text');
+            
+            if (allSales.length > 1) {
+                labelText.innerText = `Select Transaction (${allSales.length} Found)`;
+                salesLabel.style.color = "var(--amber-700)";
+                salesDropdown.style.borderColor = "var(--amber-400)";
+                salesDropdown.style.backgroundColor = "var(--amber-50)";
+                salesDropdownGroup.style.display = 'flex';
+            } else if (allSales.length === 1) {
+                labelText.innerText = "Transaction Selected";
+                salesLabel.style.color = "var(--green-700)";
+                salesDropdown.style.borderColor = "var(--green-400)";
+                salesDropdown.style.backgroundColor = "var(--green-50)";
+                salesDropdownGroup.style.display = 'flex';
+            } else {
+                salesDropdownGroup.style.display = 'none';
+            }
+            
+            loadSelectedSale(0);
+        }
+
+        function loadSelectedSale(index) {
+            index = index !== undefined ? index : document.getElementById('salesDropdown').value;
+            const saleObj = window.activeSalesList[index];
+            const lotData = saleObj.lotData;
+            const lotIdInput = saleObj.lotId;
+            const sale = saleObj.sale;
+
+            const farmerEntries = JSON.parse(localStorage.getItem('farmerEntries') || '{}');
+            const completedWeighings = JSON.parse(localStorage.getItem('completedWeighings') || '[]');
+
+            const weighingRecord = completedWeighings.find(w => w.rst === lotData.rst);
+            const gateData = farmerEntries[lotData.rst] || {};
+
+            const totalQuantity = lotData.quantity || lotData.bags || 1;
+            const totalWeight = (weighingRecord && weighingRecord.totalNet) ? weighingRecord.totalNet : (gateData.net || gateData.gross || 0);
+
+            let weightToUse = (totalWeight / totalQuantity) * sale.quantity;
+
+            currentTransaction = {
+                lotId: lotIdInput,
+                farmer: lotData.farmer || gateData.farmer || 'Unknown',
+                village: lotData.village || gateData.village || '',
+                taluka: lotData.taluka || gateData.taluka || '',
+                vehicle: lotData.vehicle || gateData.vehicle || 'N/A',
+                agent: lotData.agent || 'N/A',
+                trader: sale.trader,
+                commodity: lotData.commodity || 'Unknown',
+                bags: parseInt(sale.quantity) || 0,
+                ratePerQuintal: parseFloat(sale.rate) || 0,
+                weightKg: parseFloat(weightToUse) || 0,
+                date: new Date(sale.timestamp || Date.now()).toLocaleDateString('en-IN'),
+                saleIndex: index
+            };
+
+            // Update UI
+            document.getElementById('manual_net_wt').value = currentTransaction.weightKg.toFixed(2);
+            document.getElementById('r_farmer').innerText = currentTransaction.farmer;
+            document.getElementById('r_village').innerText = currentTransaction.village;
+            if (currentTransaction.taluka) { document.getElementById('cfg_taluka').value = currentTransaction.taluka; }
+
+            document.getElementById('r_vehicle').innerText = currentTransaction.vehicle;
+            document.getElementById('r_lot').innerText = currentTransaction.lotId + (window.activeSalesList.length > 1 ? ` (${parseInt(saleObj.saleIndex) + 1})` : '');
+            document.getElementById('r_date').innerText = currentTransaction.date;
+
+            document.getElementById('r_agent').innerText = currentTransaction.agent;
+            document.getElementById('r_trader').innerText = currentTransaction.trader;
+            document.getElementById('r_commodity').innerText = currentTransaction.commodity;
+            document.getElementById('r_rate').innerText = currentTransaction.ratePerQuintal.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+            document.getElementById('r_bags').innerText = currentTransaction.bags;
+
+            updateAdditionalInfo();
+            calculateBill();
+        }
+
+        // ADDED: Logic to map simple string values to the receipt
+        function updateAdditionalInfo() {
+            document.getElementById('r_book_no').innerText = document.getElementById('cfg_book_no').value;
+            document.getElementById('r_taluka').innerText = document.getElementById('cfg_taluka').value;
+        }
+
+        // ADDED: Logic to calculate the balance table
+        function calculateBalance() {
+            const prev = parseFloat(document.getElementById('cfg_prev_bal').value) || 0;
+            const inward = parseFloat(document.getElementById('cfg_inward').value) || 0;
+            const sales = parseFloat(document.getElementById('cfg_sales').value) || 0;
+
+            const total = prev + inward;
+            const finalBal = total - sales;
+
+            document.getElementById('r_prev_bal').innerText = prev;
+            document.getElementById('r_inward').innerText = inward;
+            document.getElementById('r_total_bal').innerText = total;
+            document.getElementById('r_sales').innerText = sales;
+            document.getElementById('r_final_bal').innerText = finalBal;
+        }
+
+        function calculateBill() {
+            if (!currentTransaction) return;
+
+            const adatPct = parseFloat(document.getElementById('cfg_adat').value) || 0;
+            const itarPct = parseFloat(document.getElementById('cfg_itar').value) || 0;
+            const hamaliRate = parseFloat(document.getElementById('cfg_hamali').value) || 0;
+            const tolaiRate = parseFloat(document.getElementById('cfg_tolai').value) || 0;
+
+            const liveWeightKg = parseFloat(document.getElementById('manual_net_wt').value) || 0;
+            const totalQuintals = liveWeightKg / 100;
+
+            const grossValue = totalQuintals * currentTransaction.ratePerQuintal;
+
+            const adatVal = grossValue * (adatPct / 100);
+            const itarVal = grossValue * (itarPct / 100);
+            const hamaliVal = currentTransaction.bags * hamaliRate;
+            const tolaiVal = totalQuintals * tolaiRate;
+            const totalDeductions = adatVal + itarVal + hamaliVal + tolaiVal;
+            const netPayable = grossValue - totalDeductions;
+
+            document.getElementById('r_quintals').innerText = totalQuintals.toFixed(2);
+            document.getElementById('r_gross').innerText = Math.round(grossValue).toLocaleString('en-IN');
+            document.getElementById('r_adat_val').innerText = Math.round(adatVal).toLocaleString('en-IN');
+            document.getElementById('r_itar_val').innerText = Math.round(itarVal).toLocaleString('en-IN');
+            document.getElementById('r_hamali_val').innerText = Math.round(hamaliVal).toLocaleString('en-IN');
+            document.getElementById('r_tolai_val').innerText = Math.round(tolaiVal).toLocaleString('en-IN');
+            document.getElementById('r_total_deduct').innerText = Math.round(totalDeductions).toLocaleString('en-IN');
+            document.getElementById('r_net_payable').innerText = Math.round(netPayable).toLocaleString('en-IN');
+        }
+
+        function saveClearedTransaction() {
+            if (!currentTransaction) return;
+            const netPayableText = document.getElementById('r_net_payable').innerText;
+            const netPayable = parseInt(netPayableText.replace(/,/g, ''));
+            const netWeightUsed = parseFloat(document.getElementById('manual_net_wt').value) || 0;
+
+            // Saving new fields
+            const bookNo = document.getElementById('cfg_book_no').value;
+            const taluka = document.getElementById('cfg_taluka').value;
+
+            let clearedHistory = JSON.parse(localStorage.getItem('clearedTransactions') || '{}');
+            const saveKey = currentTransaction.saleIndex !== undefined && window.activeSalesList && window.activeSalesList.length > 1 ?
+                `${currentTransaction.lotId}-${currentTransaction.saleIndex + 1}` :
+                currentTransaction.lotId;
+
+            clearedHistory[saveKey] = {
+                ...currentTransaction,
+                netPayable: netPayable,
+                netWeightKg: netWeightUsed,
+                bookNo: bookNo,
+                taluka: taluka
+            };
+            localStorage.setItem('clearedTransactions', JSON.stringify(clearedHistory));
+        }
+
+        function saveTransaction() { saveClearedTransaction(); alert('✅ Transaction saved!'); loadSavedTransactionsHistory(); }
+        function printAndSave() { saveClearedTransaction(); window.print(); }
+
+        document.addEventListener('click', function (event) {
+            const modal = document.getElementById('pastDataModal');
+            if (event.target === modal) closePastDataModal();
+        });
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') closePastDataModal();
+        });
+    </script>
+</body>
+
+</html>

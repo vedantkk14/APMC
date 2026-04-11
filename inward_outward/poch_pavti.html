@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Poch Pavati - APMC Accounts</title>
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;700;900&family=Work+Sans:wght@400;600;700&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <style>
+        /* ── Design Tokens (unified with hishobpatti) ── */
+        :root {
+            --background: #f8f9fa; --surface: #f8f9fa; --on-primary: #ffffff; --primary: #004493; --primary-fixed: #d8e2ff;
+            --on-surface: #191c1d; --surface-container: #edeeef; --surface-container-high: #e7e8e9; --primary-container: #235cb2;
+            --surface-container-lowest: #ffffff; --outline-variant: #c3c6d6; --secondary: #4c616c; --outline: #737785;
+            --surface-container-low: #f3f4f5; --on-surface-variant: #424654; --slate-50: #f8fafc; --slate-100: #f1f5f9;
+            --slate-200: #e2e8f0; --slate-400: #94a3b8; --slate-500: #64748b; --slate-600: #475569; --blue-600: #2563eb;
+            --blue-800: #1e40af; --green-100: #dcfce3; --green-500: #22c55e; --green-600: #16a34a; --green-700: #15803d;
+            --amber-100: #fef3c7; --amber-500: #f59e0b; --amber-700: #b45309; --red-600: #dc2626;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: var(--surface); font-family: 'Work Sans', sans-serif; color: var(--on-surface); padding-bottom: 4rem; }
+        @media (min-width: 768px) { body { padding-bottom: 0; } }
+        .headline { font-family: 'Public Sans', sans-serif; }
+        .label { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+        button, input, select { font-family: inherit; }
+
+        /* ── App Layout & Nav ── */
+        .top-nav { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 1.5rem; height: 4rem; position: sticky; top: 0; z-index: 50; background-color: #ffffff; border-bottom: 1px solid var(--slate-200); }
+        .nav-brand { font-size: 1.25rem; font-weight: 900; color: var(--primary); }
+        .app-wrapper { display: flex; min-height: calc(100vh - 4rem); }
+        .sidebar { display: none; flex-direction: column; width: 256px; border-right: 1px solid var(--slate-200); background-color: var(--slate-50); flex-shrink: 0; position: fixed; height: calc(100vh - 4rem); left: 0; top: 4rem; z-index: 40; }
+        @media (min-width: 768px) { .sidebar { display: flex; } }
+        .sidebar-header { padding: 1.5rem; }
+        .sidebar-title { font-size: 1.25rem; font-weight: 700; color: var(--primary); }
+        .sidebar-nav { flex: 1; padding: 0 0.5rem; display: flex; flex-direction: column; gap: 0.25rem; }
+        .sidebar-link { padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.75rem; border-radius: 0.375rem; font-weight: 600; font-size: 0.875rem; color: var(--on-surface-variant); text-decoration: none; transition: background-color 0.2s; }
+        .sidebar-link:hover { background-color: var(--slate-100); }
+        .sidebar-link.active { background-color: var(--primary); color: #ffffff; }
+
+        /* ── Main Content ── */
+        .main-content { flex: 1; padding: 1rem; }
+        @media (min-width: 768px) { .main-content { margin-left: 256px; padding: 2rem; } }
+        .max-w-container { max-width: 80rem; margin: 0 auto; }
+        .page-header { margin-bottom: 2.5rem; }
+        .page-title { font-size: 1.875rem; font-weight: 900; color: var(--primary); text-transform: uppercase; }
+        .main-grid { display: grid; grid-template-columns: 1fr; gap: 2.5rem; }
+        @media (min-width: 1024px) { .main-grid { grid-template-columns: repeat(12, minmax(0, 1fr)); } .grid-left { grid-column: span 4 / span 4; } .grid-right { grid-column: span 8 / span 8; } }
+
+        /* ── Left Form ── */
+        .form-section { background-color: var(--surface-container-lowest); padding: 2rem; border-radius: 0.75rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); margin-bottom: 2rem; }
+        .section-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--slate-200); }
+        .section-title { font-size: 0.875rem; font-weight: 700; color: var(--on-surface-variant); text-transform: uppercase; }
+        .input-group { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; }
+        .input-label { font-size: 0.75rem; font-weight: 700; color: var(--on-surface-variant); text-transform: uppercase; }
+        .form-control { width: 100%; background-color: var(--slate-100); border: none; border-radius: 0.375rem; padding: 1rem; font-size: 1.125rem; font-weight: 700; outline: none; border-bottom: 2px solid transparent; }
+        .form-control:focus { border-bottom: 2px solid var(--primary); background-color: white; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .form-control.small-input { padding: 0.75rem; font-size: 1rem; }
+        .config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .btn-fetch { background-color: var(--primary); color: white; padding: 1rem; border-radius: 0.5rem; font-weight: 700; width: 100%; display: flex; justify-content: center; gap: 0.5rem; margin-top: 1rem; cursor: pointer; border: none; font-size: 0.9rem; transition: background-color 0.2s; }
+        .btn-fetch:hover { background-color: var(--primary-container); }
+
+        /* Status message */
+        .status-msg { padding: 0.75rem 1rem; border-radius: 0.5rem; font-size: 0.85rem; font-weight: 700; margin-top: 1rem; display: none; }
+        .status-msg.success { display: block; background-color: var(--green-100); color: var(--green-700); border: 1px solid var(--green-500); }
+        .status-msg.error { display: block; background-color: #fee2e2; color: var(--red-600); border: 1px solid var(--red-600); }
+
+        /* ── Receipt (Poch Pavati Document) ── */
+        .receipt-container {
+            background-color: white; padding: 2.5rem; border-radius: 0.5rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            border-top: 8px solid var(--primary); position: sticky; top: 6rem; color: #000;
+        }
+
+        /* APMC Header */
+        .marathi-header { text-align: center; margin-bottom: 1.25rem; border-bottom: 3px double #000; padding-bottom: 1rem; position: relative; }
+        .m-title { font-size: 1.25rem; font-weight: 900; margin-bottom: 0.25rem; color: #004493; }
+        .m-subtitle { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .m-parishisht { font-size: 0.85rem; font-weight: bold; margin-bottom: 0.5rem; }
+
+        /* Poch Pavati Title Row */
+        .poch-title-row {
+            display: flex; justify-content: center; align-items: center; gap: 3rem;
+            border: 2px solid #000; padding: 0.75rem 1.5rem; margin-bottom: 1.25rem;
+            font-size: 1.1rem; font-weight: 900; background: #f8f9fa;
+        }
+        .poch-title-row .book-val { font-weight: 700; border-bottom: 2px dotted #1e40af; color: #1e40af; min-width: 60px; display: inline-block; text-align: center; padding: 0 0.5rem; }
+
+        /* Info Rows - styled like a formal receipt pad */
+        .info-line {
+            display: flex; align-items: baseline; gap: 0.5rem;
+            font-size: 1rem; font-weight: 700; padding: 0.6rem 0.25rem;
+            border-bottom: 1px solid #d1d5db;
+        }
+        .info-label-text { white-space: nowrap; font-weight: 800; }
+        .info-fill {
+            flex: 1; border-bottom: 2px dotted #1e40af; color: #1e40af;
+            font-weight: 700; padding-bottom: 2px; min-height: 1.2em;
+            word-break: break-word;
+        }
+
+        /* Commodity Table */
+        .poch-table { width: 100%; border-collapse: collapse; margin: 1.25rem 0; border: 2px solid #000; }
+        .poch-table th, .poch-table td { border: 1px solid #000; padding: 0.6rem 0.75rem; text-align: center; font-weight: 700; font-size: 0.95rem; }
+        .poch-table th { background-color: #f0f4ff; font-size: 0.85rem; text-transform: none; }
+        .poch-table td { color: #1e40af; min-height: 1.5rem; }
+        .poch-table td.buyers-cell { font-size: 0.85rem; text-align: left; line-height: 1.6; }
+        .buyer-tag { display: inline-block; background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 4px; padding: 1px 6px; margin: 2px; font-size: 0.8rem; white-space: nowrap; }
+
+        /* Narrative Line */
+        .narrative-line {
+            font-size: 0.95rem; font-weight: 700; padding: 0.75rem 0;
+            line-height: 1.7; border-bottom: 1px solid #d1d5db;
+        }
+        .narrative-line .n-val { border-bottom: 2px dotted #1e40af; color: #1e40af; padding: 0 0.35rem; }
+
+        /* Footer: Signature + Place/Date */
+        .poch-footer { margin-top: 2rem; }
+        .footer-place-date {
+            display: flex; justify-content: space-between; align-items: flex-end;
+            border-top: 2px solid #000; padding-top: 0.75rem; margin-top: 2.5rem;
+        }
+        .footer-place-date > div { display: flex; align-items: baseline; gap: 0.5rem; font-weight: 800; font-size: 0.95rem; }
+        .footer-fill { border-bottom: 2px dotted #1e40af; color: #1e40af; min-width: 80px; display: inline-block; padding: 0 0.35rem; font-weight: 700; }
+        .signature-box { text-align: right; }
+        .signature-box .sig-label { font-weight: 900; font-size: 0.9rem; border-top: 1px solid #000; padding-top: 0.5rem; display: inline-block; min-width: 160px; text-align: center; }
+
+        /* Action Buttons */
+        .button-container { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem; }
+        .btn-save, .btn-print { color: white; padding: 1rem; border-radius: 0.5rem; font-weight: 900; display: flex; justify-content: center; align-items: center; gap: 0.5rem; cursor: pointer; border: none; font-size: 0.9rem; transition: background-color 0.2s; }
+        .btn-save { background-color: var(--primary); }
+        .btn-save:hover { background-color: var(--primary-container); }
+        .btn-print { background-color: var(--green-600); }
+        .btn-print:hover { background-color: var(--green-700); }
+
+        /* ── Past Data Modal ── */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background-color: white; padding: 2rem; border-radius: 0.75rem; max-width: 900px; width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .modal-title { font-size: 1.5rem; font-weight: 900; color: var(--primary); }
+        .btn-close-modal { background: none; color: var(--on-surface); font-size: 1.5rem; cursor: pointer; font-weight: 700; border: none; }
+        .past-data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .past-data-table th { background-color: var(--primary); color: white; padding: 1rem; text-align: left; font-weight: 700; }
+        .past-data-table td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--slate-200); }
+        .past-data-table tbody tr { cursor: pointer; transition: background-color 0.2s; }
+        .past-data-table tbody tr:hover { background-color: var(--slate-100); }
+        .past-data-empty { text-align: center; padding: 2rem; color: var(--on-surface-variant); }
+        .btn-past-data { background-color: var(--green-600); color: white; padding: 1rem; border-radius: 0.5rem; font-weight: 700; width: 90%; margin: 1rem auto; display: block; cursor: pointer; border: none; font-size: 0.875rem; transition: background-color 0.2s; }
+        .btn-past-data:hover { background-color: var(--green-700); }
+
+        /* ── Print Styles ── */
+        @media print {
+            body * { visibility: hidden; }
+            .receipt-container, .receipt-container * { visibility: visible; }
+            .receipt-container { position: absolute; left: 0; top: 0; width: 100%; border: none; box-shadow: none; padding: 1.5rem; border-top: none; }
+            .button-container { display: none !important; }
+            .m-title { color: #000 !important; }
+            .marathi-header { border-bottom-color: #000 !important; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="nav-brand">APMC Market</div>
+    </nav>
+
+    <div class="app-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="sidebar-title">Lekha Vibhag</h1>
+            </div>
+            <nav class="sidebar-nav">
+                <a class="sidebar-link" href="hishobpatti.html">
+                    <span class="material-symbols-outlined">receipt_long</span>
+                    <span>Hishobpatti (Bill)</span>
+                </a>
+                <a class="sidebar-link" href="trader_bill.html">
+                    <span class="material-symbols-outlined">request_quote</span>
+                    <span>Trader Bill (व्यापारी बिल)</span>
+                </a>
+                <a class="sidebar-link active" href="poch_pavati.html">
+                    <span class="material-symbols-outlined">verified</span>
+                    <span>Poch Pavati (पोच पावती)</span>
+                </a>
+            </nav>
+            <button class="btn-past-data" onclick="openPastDataModal()">📋 Saved Receipts</button>
+        </aside>
+
+        <main class="main-content">
+            <div class="max-w-container">
+                <header class="page-header">
+                    <h1 class="page-title headline">Poch Pavati (पोच पावती)</h1>
+                </header>
+
+                <div class="main-grid">
+                    <!-- ─── LEFT: Search & Config ─── -->
+                    <div class="grid-left">
+                        <section class="form-section" style="border-left: 4px solid var(--primary);">
+                            <div class="section-header">
+                                <h2 class="section-title label">1. Fetch by RST / Lot ID</h2>
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">Enter RST Number or Lot ID</label>
+                                <input class="form-control" id="searchInput" placeholder="RST-XXXX or LOT-XXX" type="text" />
+                                <button class="btn-fetch" onclick="fetchData()">
+                                    <span class="material-symbols-outlined" style="font-size:1.125rem;">search</span>
+                                    Load All Lots
+                                </button>
+                            </div>
+                            <div class="status-msg" id="statusMsg"></div>
+                        </section>
+
+                        <section class="form-section" style="border-left: 4px solid var(--amber-500);">
+                            <div class="section-header">
+                                <h2 class="section-title label">2. Additional Info</h2>
+                            </div>
+                            <div class="config-grid">
+                                <div class="input-group">
+                                    <label class="input-label">बुक नं. (Book No.)</label>
+                                    <input class="form-control small-input" id="cfg_book_no" type="text" placeholder="12345" oninput="updateReceipt()" />
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">ठिकाण (Place)</label>
+                                    <input class="form-control small-input" id="cfg_place" type="text" placeholder="माजलगाव" value="माजलगाव" oninput="updateReceipt()" />
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+
+                    <!-- ─── RIGHT: Printable Poch Pavati Receipt ─── -->
+                    <div class="grid-right">
+                        <div class="receipt-container" id="printable-receipt">
+
+                            <!-- APMC HEADER -->
+                            <div class="marathi-header">
+                                <div class="m-parishisht">परिशिष्ट क्र. ६ (उपविधी १६ नुसार)</div>
+                                <h2 class="m-title">उच्चतम कृषी उत्पन्न बाजार समिती माजलगाव, जि. बीड</h2>
+                                <p class="m-subtitle">आडत्याने शेतकऱ्याच्या शेतीमाल विक्री केलेल्या मालासंबंधी द्यावयाची हिशोबपट्टी</p>
+                            </div>
+
+                            <!-- POCH PAVATI TITLE -->
+                            <div class="poch-title-row">
+                                <span>पोच पावती</span>
+                                <span>बुक नं.: <span class="book-val" id="r_book_no">___</span></span>
+                            </div>
+
+                            <!-- INFO LINES -->
+                            <div class="info-line">
+                                <span class="info-label-text">आडत्या / खरेदीदाराचे नाव:</span>
+                                <span class="info-fill" id="r_agent_trader"></span>
+                            </div>
+
+                            <div class="info-line" style="display: flex; gap: 1rem;">
+                                <div style="display: flex; align-items: baseline; gap: 0.5rem; flex: 2;">
+                                    <span class="info-label-text">श्री</span>
+                                    <span class="info-fill" id="r_farmer"></span>
+                                </div>
+                                <div style="display: flex; align-items: baseline; gap: 0.5rem; flex: 1;">
+                                    <span class="info-label-text">रा.</span>
+                                    <span class="info-fill" id="r_village"></span>
+                                </div>
+                            </div>
+
+                            <!-- NARRATIVE LINE -->
+                            <div class="narrative-line">
+                                यांनी विक्रीसाठी <span class="n-val" id="r_vehicle">___</span> या वाहतूक आणून दिलेला
+                            </div>
+                            <div class="narrative-line" style="border-bottom: 2px solid #000;">
+                                खालील शेतीमाल आज रोजी मिळाला.
+                            </div>
+
+                            <!-- COMMODITY TABLE (dynamically populated with multiple lots) -->
+                            <table class="poch-table">
+                                <thead>
+                                    <tr>
+                                        <th>लॉट / बुक नं.</th>
+                                        <th>मालाचा प्रकार<br><small>(Commodity)</small></th>
+                                        <th>वजन / संख्या<br><small>(Weight / Qty)</small></th>
+                                        <th>खरेदीदार<br><small>(Buyer/s)</small></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="r_commodity_tbody">
+                                    <tr>
+                                        <td colspan="4" style="color: #94a3b8; font-style: italic;">Search by RST or LOT to load data</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <!-- FOOTER -->
+                            <div class="poch-footer">
+                                <div class="signature-box">
+                                    <div class="sig-label">स्वाक्षरी<br>खरेदीदार / आडत्या</div>
+                                </div>
+
+                                <div class="footer-place-date">
+                                    <div>
+                                        <span>ठिकाण:</span>
+                                        <span class="footer-fill" id="r_place">माजलगाव</span>
+                                    </div>
+                                    <div>
+                                        <span>दि.:</span>
+                                        <span class="footer-fill" id="r_date"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ACTION BUTTONS -->
+                            <div class="button-container">
+                                <button class="btn-save" onclick="saveReceipt()">
+                                    <span class="material-symbols-outlined">save</span> Save
+                                </button>
+                                <button class="btn-print" onclick="printReceipt()">
+                                    <span class="material-symbols-outlined">print</span> Print
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Past Data Modal -->
+    <div class="modal-overlay" id="pastDataModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">📋 Saved Poch Pavati History</h2>
+                <button class="btn-close-modal" onclick="closePastDataModal()">✕</button>
+            </div>
+            <table class="past-data-table">
+                <thead>
+                    <tr>
+                        <th>RST / Lot</th>
+                        <th>Date</th>
+                        <th>Farmer</th>
+                        <th>Lots</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="past-data-tbody">
+                    <tr><td colspan="5" class="past-data-empty">No saved receipts yet</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let currentReceiptData = null; // Stores the full receipt data for saving/loading
+
+        // ─── Normalize key for case-insensitive RST lookups ───
+        function normalizeKey(str) {
+            return str.replace(/[\r\n\t]/g, '').replace(/\s+/g, ' ').trim().toUpperCase();
+        }
+
+        function findEntryByRST(farmerEntries, rstInput) {
+            if (farmerEntries[rstInput]) return { key: rstInput, data: farmerEntries[rstInput] };
+            const normalizedInput = normalizeKey(rstInput);
+            for (const key of Object.keys(farmerEntries)) {
+                if (normalizeKey(key) === normalizedInput) return { key: key, data: farmerEntries[key] };
+            }
+            return null;
+        }
+
+        // ─── MAIN: Fetch Data by RST or Lot ID ───
+        function fetchData() {
+            const searchVal = document.getElementById('searchInput').value.trim().toUpperCase();
+            const statusMsg = document.getElementById('statusMsg');
+            if (!searchVal) { showStatus('Enter a RST Number or Lot ID', 'error'); return; }
+
+            const allLots = JSON.parse(localStorage.getItem('auctionLots') || '{}');
+            const farmerEntries = JSON.parse(localStorage.getItem('farmerEntries') || '{}');
+            const biddingResults = JSON.parse(localStorage.getItem('biddingResults') || '{}');
+            const completedWeighings = JSON.parse(localStorage.getItem('completedWeighings') || '[]');
+
+            let rstNumber = null;
+            let matchedLots = []; // Array of { lotId, lotData }
+
+            // Strategy 1: Direct LOT ID match — find its RST, then find ALL lots with that RST
+            if (allLots[searchVal]) {
+                rstNumber = allLots[searchVal].rst || null;
+            }
+
+            // Strategy 2: Input IS an RST — find all lots linked to it
+            if (!rstNumber) {
+                // Check if any lot has this RST
+                for (const [id, data] of Object.entries(allLots)) {
+                    if (data.rst && normalizeKey(data.rst) === normalizeKey(searchVal)) {
+                        rstNumber = data.rst;
+                        break;
+                    }
+                }
+                // Also check farmerEntries directly
+                if (!rstNumber) {
+                    const feMatch = findEntryByRST(farmerEntries, searchVal);
+                    if (feMatch) rstNumber = feMatch.key;
+                }
+            }
+
+            if (!rstNumber) {
+                showStatus('❌ No data found for: ' + searchVal, 'error');
+                return;
+            }
+
+            // Collect ALL lots associated with this RST
+            for (const [lotId, lotData] of Object.entries(allLots)) {
+                if (lotData.rst && normalizeKey(lotData.rst) === normalizeKey(rstNumber)) {
+                    matchedLots.push({ lotId, lotData });
+                }
+            }
+
+            if (matchedLots.length === 0) {
+                showStatus('❌ No auction lots found for RST: ' + rstNumber, 'error');
+                return;
+            }
+
+            // Get farmer/gate entry data
+            const gateMatch = findEntryByRST(farmerEntries, rstNumber);
+            const gateData = gateMatch ? gateMatch.data : {};
+
+            // Get weighing data
+            const weighingMatch = completedWeighings.find(w => normalizeKey(w.rst) === normalizeKey(rstNumber));
+
+            // Use first lot to get shared info (farmer, agent, vehicle)
+            const firstLot = matchedLots[0].lotData;
+            const agent = firstLot.agent || gateData.agent || '';
+            const farmer = firstLot.farmer || gateData.farmer || '---';
+            const village = firstLot.village || gateData.village || '';
+            const vehicle = firstLot.vehicle || gateData.vehicle || '';
+
+            // Collect all unique buyers (traders) across ALL lots
+            const allBuyers = new Set();
+            matchedLots.forEach(({ lotData }) => {
+                // From sales array (new format)
+                if (lotData.sales && Array.isArray(lotData.sales)) {
+                    lotData.sales.forEach(s => { if (s.trader) allBuyers.add(s.trader); });
+                }
+                // Legacy single-winner field
+                if (lotData.winningTrader) allBuyers.add(lotData.winningTrader);
+                // From biddingResults
+                const bid = biddingResults[matchedLots.find(m => m.lotData === lotData)?.lotId];
+                if (bid && bid.winningBidder) allBuyers.add(bid.winningBidder);
+            });
+
+            // Build display text for agent/buyer line
+            let agentTraderDisplay = '';
+            if (agent) {
+                agentTraderDisplay = agent + ' (आडत्या)';
+            }
+            if (allBuyers.size > 0) {
+                const buyerList = Array.from(allBuyers).join(', ');
+                agentTraderDisplay += (agentTraderDisplay ? ' / ' : '') + buyerList + ' (खरेदीदार)';
+            }
+            if (!agentTraderDisplay) agentTraderDisplay = '---';
+
+            // Build per-lot rows for the table
+            const lotRows = matchedLots.map(({ lotId, lotData }) => {
+                const quantity = lotData.quantity || lotData.bags || 0;
+                const scale = lotData.scale || 'Bags';
+
+                // Try to get weight from completedWeighings commodity breakdown
+                let weightKg = 0;
+                if (weighingMatch && weighingMatch.commodities) {
+                    const commMatch = weighingMatch.commodities.find(c =>
+                        c.name && lotData.commodity && c.name.toUpperCase().includes(lotData.commodity.split(' ')[0].toUpperCase())
+                    );
+                    if (commMatch) weightKg = commMatch.net || 0;
+                }
+
+                // Build weight display
+                let weightDisplay = `${quantity} ${scale}`;
+                if (weightKg > 0) {
+                    const quintals = Math.floor(weightKg / 100);
+                    const kilos = Math.round(weightKg % 100);
+                    weightDisplay += ` (${quintals} क्विं. ${kilos} किलो)`;
+                }
+
+                // Collect buyers for THIS specific lot
+                const lotBuyers = [];
+                if (lotData.sales && Array.isArray(lotData.sales)) {
+                    lotData.sales.forEach(s => {
+                        if (s.trader) lotBuyers.push(`${s.trader} (${s.quantity} ${s.scale || scale} @ ₹${s.rate})`);
+                    });
+                }
+                if (lotBuyers.length === 0 && lotData.winningTrader) {
+                    lotBuyers.push(lotData.winningTrader);
+                }
+                if (lotBuyers.length === 0) {
+                    const bid = biddingResults[lotId];
+                    if (bid && bid.winningBidder) lotBuyers.push(bid.winningBidder);
+                }
+
+                return {
+                    lotId,
+                    commodity: lotData.commodity || '---',
+                    weightDisplay,
+                    buyers: lotBuyers,
+                    status: lotData.status || 'Pending'
+                };
+            });
+
+            // Store full data for save/load
+            currentReceiptData = {
+                rst: rstNumber,
+                farmer,
+                village,
+                vehicle,
+                agent,
+                agentTraderDisplay,
+                lotRows,
+                allBuyers: Array.from(allBuyers),
+                date: new Date().toLocaleDateString('en-IN')
+            };
+
+            populateReceipt();
+            showStatus(`✅ Found ${matchedLots.length} lot(s) for RST: ${rstNumber}`, 'success');
+        }
+
+        // ─── Populate Receipt ───
+        function populateReceipt() {
+            if (!currentReceiptData) return;
+
+            document.getElementById('r_agent_trader').innerText = currentReceiptData.agentTraderDisplay;
+            document.getElementById('r_farmer').innerText = currentReceiptData.farmer;
+            document.getElementById('r_village').innerText = currentReceiptData.village;
+            document.getElementById('r_vehicle').innerText = currentReceiptData.vehicle || '___';
+            document.getElementById('r_date').innerText = currentReceiptData.date;
+
+            // Build commodity table rows
+            const tbody = document.getElementById('r_commodity_tbody');
+            tbody.innerHTML = '';
+
+            currentReceiptData.lotRows.forEach(row => {
+                const tr = document.createElement('tr');
+
+                // Buyers column: show each buyer with details
+                let buyersHtml = '';
+                if (row.buyers.length > 0) {
+                    buyersHtml = row.buyers.map(b => `<span class="buyer-tag">${b}</span>`).join('');
+                } else {
+                    buyersHtml = `<span style="color:#94a3b8; font-style:italic;">बोली प्रतीक्षेत</span>`;
+                }
+
+                // Status indicator
+                const statusLower = (row.status || '').toLowerCase();
+                let statusColor = '#f59e0b';
+                if (statusLower.includes('completed') || statusLower.includes('sold')) statusColor = '#16a34a';
+
+                tr.innerHTML = `
+                    <td>${row.lotId}<br><span style="font-size: 0.7rem; color: ${statusColor};">● ${row.status}</span></td>
+                    <td>${row.commodity}</td>
+                    <td>${row.weightDisplay}</td>
+                    <td class="buyers-cell">${buyersHtml}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            updateReceipt();
+        }
+
+        // ─── Update config fields ───
+        function updateReceipt() {
+            document.getElementById('r_book_no').innerText = document.getElementById('cfg_book_no').value || '___';
+            document.getElementById('r_place').innerText = document.getElementById('cfg_place').value || 'माजलगाव';
+        }
+
+        // ─── Status Message ───
+        function showStatus(msg, type) {
+            const el = document.getElementById('statusMsg');
+            el.innerText = msg;
+            el.className = 'status-msg ' + type;
+        }
+
+        // ─── Save Receipt ───
+        function saveReceipt() {
+            if (!currentReceiptData) { alert("Load data first!"); return; }
+
+            let savedReceipts = JSON.parse(localStorage.getItem('pochPavatiHistory') || '{}');
+            const saveKey = currentReceiptData.rst || currentReceiptData.lotRows[0]?.lotId || 'UNKNOWN';
+            savedReceipts[saveKey] = {
+                ...currentReceiptData,
+                bookNo: document.getElementById('cfg_book_no').value,
+                place: document.getElementById('cfg_place').value,
+                savedAt: new Date().toISOString()
+            };
+            localStorage.setItem('pochPavatiHistory', JSON.stringify(savedReceipts));
+            alert('✅ Poch Pavati saved!');
+        }
+
+        // ─── Print Receipt ───
+        function printReceipt() {
+            if (currentReceiptData) saveReceipt();
+            window.print();
+        }
+
+        // ─── Past Data Modal ───
+        function openPastDataModal() {
+            loadPastDataTable();
+            document.getElementById('pastDataModal').classList.add('active');
+        }
+
+        function closePastDataModal() {
+            document.getElementById('pastDataModal').classList.remove('active');
+        }
+
+        function loadPastDataTable() {
+            const history = JSON.parse(localStorage.getItem('pochPavatiHistory') || '{}');
+            const tbody = document.getElementById('past-data-tbody');
+            tbody.innerHTML = '';
+
+            if (Object.keys(history).length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="past-data-empty">No saved receipts yet</td></tr>';
+                return;
+            }
+
+            Object.keys(history).reverse().forEach(key => {
+                const rec = history[key];
+                const lotCount = rec.lotRows ? rec.lotRows.length : 1;
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${key}</strong></td>
+                    <td>${rec.date || 'N/A'}</td>
+                    <td>${rec.farmer || 'N/A'}</td>
+                    <td>${lotCount} lot(s)</td>
+                    <td><button class="btn-fetch" style="padding: 0.5rem 1rem; font-size: 0.75rem;" onclick="loadSavedReceipt('${key}')">Load</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function loadSavedReceipt(key) {
+            const history = JSON.parse(localStorage.getItem('pochPavatiHistory') || '{}');
+            const rec = history[key];
+            if (!rec) return;
+
+            currentReceiptData = rec;
+            document.getElementById('searchInput').value = key;
+            if (rec.bookNo) document.getElementById('cfg_book_no').value = rec.bookNo;
+            if (rec.place) document.getElementById('cfg_place').value = rec.place;
+
+            populateReceipt();
+            closePastDataModal();
+            window.scrollTo({ top: document.querySelector('.grid-right').offsetTop, behavior: 'smooth' });
+        }
+
+        // ─── Close modal on outside click / ESC ───
+        document.addEventListener('click', function(e) {
+            if (e.target === document.getElementById('pastDataModal')) closePastDataModal();
+        });
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closePastDataModal();
+        });
+
+        // ─── Keyboard shortcut: Enter key triggers fetch ───
+        document.getElementById('searchInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') { e.preventDefault(); fetchData(); }
+        });
+
+        // Initialize date on load
+        window.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('r_date').innerText = new Date().toLocaleDateString('en-IN');
+        });
+    </script>
+</body>
+</html>

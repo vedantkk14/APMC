@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Dainik Aavak - Gate Entry & Weighbridge</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;700;900&family=Work+Sans:wght@400;600;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+
+    <style>
+        /* CSS Variables derived from original Tailwind Config */
+        :root {
+            --background: #f8f9fa; --tertiary-container: #a93802; --on-secondary-container: #526772;
+            --error: #ba1a1a; --on-primary: #ffffff; --primary: #004493; --on-tertiary-container: #ffcebd;
+            --primary-fixed: #d8e2ff; --on-surface: #191c1d; --surface-container: #edeeef;
+            --primary-container: #235cb2; --on-primary-fixed: #001a41; --surface-container-lowest: #ffffff;
+            --outline-variant: #c3c6d6; --secondary: #4c616c; --on-background: #191c1d;
+            --inverse-surface: #2e3132; --primary-fixed-dim: #acc7ff; --outline: #737785;
+            --surface-container-low: #f3f4f5; --tertiary: #822800; --on-primary-container: #c9d9ff;
+            --secondary-fixed: #cfe6f2;
+
+            --blue-600: #2563eb; --blue-800: #1e40af; --blue-900: #1e3a8a;
+            --slate-50: #f8fafc; --slate-100: #f1f5f9; --slate-200: #e2e8f0; --slate-400: #94a3b8;
+            --slate-500: #64748b; --slate-600: #475569; --green-500: #22c55e; --green-600: #16a34a;
+            --green-700: #15803d; --amber-500: #f59e0b; --amber-700: #b45309;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: var(--background); font-family: 'Work Sans', sans-serif; color: var(--on-background); display: flex; height: 100vh; overflow: hidden; -webkit-font-smoothing: antialiased; }
+        @media (max-width: 767px) { body { flex-direction: column; height: auto; overflow: auto; padding-bottom: 4.5rem; } }
+        .headline { font-family: 'Public Sans', sans-serif; }
+        .label { font-family: 'Inter', sans-serif; }
+        .mono { font-family: 'Space Mono', 'Courier New', Courier, monospace; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+        a { text-decoration: none; }
+        button { cursor: pointer; border: none; background: none; font-family: inherit; }
+        input, select { font-family: inherit; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Layout */
+        .sidebar { display: none; flex-direction: column; height: 100vh; width: 256px; border-right: 1px solid var(--slate-200); background-color: var(--slate-50); flex-shrink: 0; }
+        @media (min-width: 768px) { .sidebar { display: flex; } }
+        .sidebar-header { padding: 1.5rem; }
+        .sidebar-title { font-size: 1.25rem; font-weight: 700; color: var(--blue-800); }
+        .sidebar-subtitle { font-size: 0.75rem; font-family: 'Inter', sans-serif; color: var(--on-surface-variant); }
+        .sidebar-nav { flex: 1; padding: 0 0.5rem; display: flex; flex-direction: column; gap: 0.25rem; }
+        .nav-link { padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.75rem; border-radius: 0.375rem; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.875rem; transition: all 0.2s; }
+        .nav-link.active { background-color: var(--blue-600); color: #ffffff; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
+        .sidebar-footer { padding: 1rem; border-top: 1px solid var(--slate-200); background-color: var(--surface-container-low); }
+
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; min-width: 0; height: 100vh; overflow: hidden; }
+        @media (max-width: 767px) { .main-wrapper { height: auto; overflow: visible; } }
+        .topbar { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0.75rem 1.5rem; background-color: #ffffff; flex-shrink: 0; border-bottom: 2px solid var(--primary); }
+        @media (max-width: 767px) { .topbar { position: sticky; top: 0; z-index: 50; padding: 0.75rem 1rem; } }
+        .topbar-title { font-size: 1.5rem; font-weight: 900; color: var(--blue-900); text-transform: uppercase; letter-spacing: -0.05em; }
+        @media (max-width: 480px) { .topbar-title { font-size: 1.125rem; } }
+
+        .content-area { display: flex; flex: 1; overflow: hidden; }
+        @media (max-width: 767px) { .content-area { flex-direction: column; overflow: visible; } }
+        .form-section { width: 60%; background-color: var(--surface-container-lowest); overflow-y: auto; padding: 2rem; }
+        @media (max-width: 767px) { .form-section { width: 100%; padding: 1rem; overflow-y: visible; } }
+        .form-container { max-width: 48rem; margin: 0 auto; }
+        .form-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2.5rem; }
+        @media (max-width: 767px) { .form-header { flex-direction: column; align-items: flex-start; gap: 1rem; margin-bottom: 1.5rem; } }
+        .page-title { font-size: 2.25rem; font-weight: 900; color: var(--primary); letter-spacing: -0.025em; }
+        @media (max-width: 480px) { .page-title { font-size: 1.5rem; } }
+        .page-subtitle { color: var(--on-surface-variant); margin-top: 0.25rem; padding-bottom: 1rem; border-bottom: 2px solid var(--primary); }
+        @media (max-width: 767px) { .page-subtitle { border-bottom: none; padding-bottom: 0; } }
+        .rst-label { display: block; font-size: 0.75rem; text-transform: uppercase; color: var(--outline); letter-spacing: 0.1em; }
+        .rst-number { font-size: 1.5rem; font-weight: 700; }
+        @media (max-width: 480px) { .rst-number { font-size: 1.25rem; } }
+
+        .main-form { display: flex; flex-direction: column; gap: 3rem; }
+        @media (max-width: 767px) { .main-form { gap: 1.5rem; } }
+        .form-grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 2rem; row-gap: 1.5rem; }
+        @media (max-width: 767px) { .form-grid-2 { grid-template-columns: 1fr; column-gap: 0; row-gap: 1rem; } }
+        .col-span-full { grid-column: 1 / -1; }
+        .section-header { padding-left: 1rem; padding-top: 0.25rem; padding-bottom: 0.25rem; margin-bottom: 0.5rem; }
+        .section-header.primary { border-left: 4px solid var(--primary); }
+        .section-header.tertiary { border-left: 4px solid var(--tertiary); }
+        .section-title { font-size: 0.875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--on-surface-variant); }
+        @media (max-width: 480px) { .section-title { font-size: 0.75rem; } }
+
+        
+        .input-group { display: flex; flex-direction: column; gap: 0.25rem; }
+        .input-label { font-size: 0.75rem; font-weight: 600; color: var(--outline); text-transform: uppercase; letter-spacing: 0.05em; }
+        .form-control { width: 100%; background-color: var(--slate-100); border: 1px solid var(--outline-variant); border-radius: 0.375rem; padding: 0.75rem; font-size: 0.875rem; transition: border-color 0.2s; }
+        .form-control:focus { border-color: var(--primary); outline: none !important; }
+        .form-control.uppercase { text-transform: uppercase; font-weight: 700; }
+        .form-control.uppercase::placeholder { text-transform: none; font-weight: 400; }
+        .form-control.large { padding: 1rem; font-size: 1.25rem; font-weight: 900; color: var(--primary); }
+
+        /* Commodity Dropdown System */
+        .commodity-select-row { display: flex; gap: 0.75rem; align-items: flex-end; }
+        .commodity-select-row .input-group { flex: 1; }
+        .btn-add-commodity { height: 42px; padding: 0 1.25rem; display: flex; align-items: center; justify-content: center; gap: 0.375rem; background-color: var(--primary); color: #fff; border-radius: 0.375rem; font-weight: 700; font-size: 0.8125rem; font-family: 'Inter', sans-serif; white-space: nowrap; flex-shrink: 0; transition: opacity 0.2s; }
+        .btn-add-commodity:hover { opacity: 0.85; }
+        .btn-add-commodity:disabled { opacity: 0.4; cursor: not-allowed; }
+        .commodity-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; min-height: 2rem; }
+        .commodity-tag { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.375rem 0.5rem 0.375rem 0.75rem; background-color: var(--primary-fixed); color: var(--on-primary-fixed); border-radius: 9999px; font-size: 0.8125rem; font-weight: 600; font-family: 'Inter', sans-serif; animation: tagIn 0.2s ease; }
+        .commodity-tag .tag-sub { font-weight: 400; opacity: 0.75; font-size: 0.75rem; }
+        .commodity-tag .tag-remove { width: 1.25rem; height: 1.25rem; display: flex; align-items: center; justify-content: center; border-radius: 9999px; background-color: rgba(0,0,0,0.12); color: var(--on-primary-fixed); font-size: 0.875rem; cursor: pointer; transition: background-color 0.15s; line-height: 1; }
+        .commodity-tag .tag-remove:hover { background-color: rgba(0,0,0,0.25); }
+        .commodity-tags-empty { font-size: 0.75rem; color: var(--outline); font-style: italic; padding: 0.25rem 0; }
+        @keyframes tagIn { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
+
+        .action-bar { padding-top: 2rem; display: flex; gap: 1rem; }
+        .btn-submit { flex: 1; background: linear-gradient(to right, var(--primary), var(--primary-container)); color: #ffffff; padding: 1rem; border-radius: 0.375rem; font-weight: 700; font-size: 0.875rem; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 0.75rem; }
+
+        /* Right Pane (Recent Entries) */
+        .entries-section { width: 40%; background-color: var(--surface-container-low); border-left: 1px solid var(--outline-variant); display: flex; flex-direction: column; }
+        @media (max-width: 767px) { .entries-section { width: 100%; border-left: none; border-top: 1px solid var(--outline-variant); max-height: none; } }
+        .entries-header { padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+        @media (max-width: 767px) { .entries-header { padding: 1rem; } }
+        .entries-title { font-size: 1.25rem; font-weight: 700; }
+        .entries-list-container { flex: 1; overflow-y: auto; padding: 0 1.5rem 1.5rem 1.5rem; }
+        @media (max-width: 767px) { .entries-list-container { padding: 0 1rem 1rem 1rem; overflow-x: auto; } }
+        .data-table { width: 100%; text-align: left; border-spacing: 0 0.5rem; }
+        @media (max-width: 767px) { .data-table { min-width: 400px; } }
+        .data-table th { font-size: 0.625rem; text-transform: uppercase; color: var(--outline-variant); }
+        .table-row { background-color: var(--surface-container-lowest); cursor: pointer; }
+        .table-row td { padding: 1rem 0; }
+        .rst-col-title { font-size: 0.75rem; font-weight: 700; display: block; }
+        .veh-col-title { font-size: 0.75rem; font-weight: 700; display: block; }
+        .wt-col-val { font-size: 0.75rem; font-weight: 900; color: var(--primary); display: block; }
+
+        /* Modal Styles */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; pointer-events: none; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-container { background-color: #ffffff; border-radius: 0.75rem; width: 440px; padding: 1.5rem; }
+        .receipt-ticket { border: 1px dashed var(--slate-400); padding: 2rem; }
+        .ticket-header { text-align: center; margin-bottom: 1.5rem; font-family: 'Space Mono', monospace; font-weight: 700;}
+        .ticket-row { display: flex; justify-content: space-between; font-family: 'Space Mono', monospace; font-size: 0.85rem; margin-bottom: 0.5rem;}
+        .btn-modal-print { width: 100%; background-color: var(--primary); color: white; padding: 1rem; border-radius: 0.375rem; font-weight: 700; margin-top: 1rem;}
+        .btn-modal-close { width: 100%; background: none; color: var(--slate-500); padding: 1rem; font-weight: 700; margin-top: 0.5rem;}
+
+        /* Modal responsive */
+        @media (max-width: 480px) {
+            .modal-container { width: 95vw; padding: 1rem; }
+            .receipt-ticket { padding: 1rem; }
+            .ticket-row { font-size: 0.75rem; }
+        }
+
+        /* Mobile Bottom Nav */
+        .mobile-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; height: 4rem; background-color: #ffffff; border-top: 1px solid var(--slate-200); justify-content: space-around; align-items: center; padding: 0 1rem; z-index: 50; }
+        @media (max-width: 767px) { .mobile-nav { display: flex; } }
+        .mobile-nav-btn { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; color: var(--slate-500); background: none; border: none; font-family: 'Inter', sans-serif; }
+        .mobile-nav-btn.active { color: var(--blue-600); }
+        .mobile-nav-label { font-size: 0.625rem; font-weight: 700; text-transform: uppercase; }
+    </style>
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h1 class="sidebar-title">APMC Terminal</h1>
+            <p class="sidebar-subtitle label">Gate #04</p>
+        </div>
+        <nav class="sidebar-nav">
+            <a class="nav-link active" href="#"><span class="material-symbols-outlined">door_front</span><span>Gate Entry</span></a>
+        </nav>
+    </aside>
+
+    <main class="main-wrapper">
+        <header class="topbar">
+            <span class="topbar-title headline">Dainik Aavak</span>
+        </header>
+
+        <div class="content-area">
+            <section class="form-section no-scrollbar">
+                <div class="form-container">
+                    <div class="form-header">
+                        <div>
+                            <h2 class="page-title headline">COMMODITY ENTRY</h2>
+                            <p class="page-subtitle label">Farmer Commodity Submission</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <span class="rst-label label">RST Number</span>
+                            <span class="rst-number headline" id="display-rst">RST-2024-0892</span>
+                        </div>
+                    </div>
+                    <form class="main-form" id="gate-entry-form">
+                        <div class="form-grid-2">
+                            <div class="col-span-full section-header primary">
+                                <h3 class="section-title label">General Details</h3>
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label label">Date & Time</label>
+                                <input class="form-control" id="entry_date" readonly type="text" />
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label label">Vehicle Number</label>
+                                <input class="form-control uppercase" id="vehicle_no" oninput="this.value = this.value.toUpperCase()" type="text" required />
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label label">Farmer Name</label>
+                                <input class="form-control uppercase" id="farmer_name" oninput="this.value = this.value.toUpperCase()" type="text" required />
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label label">Farmer Village Name</label>
+                                <input class="form-control uppercase" id="farmer_village" oninput="this.value = this.value.toUpperCase()" type="text" />
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label label">Farmer Mobile Number</label>
+                                <input class="form-control uppercase" id="farmer_mobile" type="text" />
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label label">Agent Name (Adatya)</label>
+                                <select class="form-control" id="agent_name" required>
+                                    <option value="">Select Agent...</option>
+                                    <option value="Mauli Agency">Mauli Agency</option>
+                                    <option value="Ambika Traders">Ambika Traders</option>
+                                    <option value="Kalika Co">Kalika Co.</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-span-full">
+                                <div class="section-header primary" style="margin-top: 0.5rem;">
+                                    <h3 class="section-title label">Commodities</h3>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label label">Commodity Type</label>
+                                <select class="form-control" id="commodity_main" onchange="onCommodityMainChange()">
+                                    <option value="">Select Commodity...</option>
+                                </select>
+                            </div>
+                            <div class="input-group" id="sub_commodity_group" style="display:none;">
+                                <label class="input-label label">Sub Commodity</label>
+                                <select class="form-control" id="commodity_sub">
+                                    <option value="">Select Subtype...</option>
+                                </select>
+                            </div>
+                            <div class="col-span-full" style="display: flex; align-items: flex-end; gap: 0.75rem;">
+                                <button type="button" class="btn-add-commodity" id="btn_add_commodity" onclick="addCommodityTag()" disabled>
+                                    <span class="material-symbols-outlined" style="font-size:1.125rem;">add</span>
+                                    Add Commodity
+                                </button>
+                            </div>
+                            <div class="col-span-full">
+                                <div class="commodity-tags" id="commodity_tags">
+                                    <span class="commodity-tags-empty" id="tags_placeholder">No commodities selected yet</span>
+                                </div>
+                            </div>
+                        </div>
+
+                       
+
+                        <div class="action-bar">
+                            <button class="btn-submit" type="submit">
+                                <span class="material-symbols-outlined">print</span>
+                                Save & Print Token
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <section class="entries-section">
+                <div class="entries-header">
+                    <h2 class="entries-title headline">Recent Entries</h2>
+                </div>
+                <div class="entries-list-container no-scrollbar">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>RST No</th>
+                                <th>Vehicle</th>
+                                <th>Commodities</th>
+                            </tr>
+                        </thead>
+                        <tbody id="entries-tbody"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <nav class="mobile-nav">
+        <button class="mobile-nav-btn active">
+            <span class="material-symbols-outlined" style="font-size: 1.25rem; font-variation-settings: 'FILL' 1;">door_front</span>
+            <span class="mobile-nav-label">Gate Entry</span>
+        </button>
+        <button class="mobile-nav-btn">
+            <span class="material-symbols-outlined" style="font-size: 1.25rem;">history</span>
+            <span class="mobile-nav-label">Entries</span>
+        </button>
+        <button class="mobile-nav-btn">
+            <span class="material-symbols-outlined" style="font-size: 1.25rem;">settings</span>
+            <span class="mobile-nav-label">Settings</span>
+        </button>
+    </nav>
+
+    <div class="modal-overlay" id="printModal">
+        <div class="modal-container">
+            <div class="receipt-ticket">
+                <div class="ticket-header">
+                    <h3>APMC TERMINAL</h3>
+                    <p style="font-size: 0.7rem; color: #666;">OFFICIAL ENTRY PASS</p>
+                </div>
+                <div style="border-bottom: 1px dashed #ccc; margin-bottom: 1rem;"></div>
+
+                <div class="ticket-row"><span>RST No:</span><span id="m_rst" style="font-weight:bold;"></span></div>
+                <div class="ticket-row"><span>Date/Time:</span><span id="m_date"></span></div>
+                <div class="ticket-row"><span>Vehicle:</span><span id="m_vehicle" style="font-weight:bold;"></span></div>
+                <div class="ticket-row"><span>Farmer:</span><span id="m_farmer"></span></div>
+                <div class="ticket-row"><span>Village:</span><span id="m_village"></span></div>
+                <div class="ticket-row"><span>Agent:</span><span id="m_agent"></span></div>
+                
+                <div style="margin-top: 1rem; padding-top: 0.5rem; border-top: 1px dotted #ccc;">
+                    <span style="font-size: 0.8rem; font-weight: bold; font-family: 'Space Mono', monospace;">Commodities:</span>
+                    <div id="m_commodity" style="font-family: 'Space Mono', monospace; font-size: 0.85rem; margin-top: 0.25rem; white-space: pre-wrap;"></div>
+                </div>
+            </div>
+            <button class="btn-modal-print" onclick="window.print()">Print Token</button>
+            <button class="btn-modal-close" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('entry_date').value = new Date().toLocaleString('en-IN', {day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'});
+
+        const commoditiesData = {
+            "Wheat (गहू)": ["Lokwan (लोकवण)", "Sharbati (शरबती)", "Sujata (सुजाता)", "Tukdi (तुकडी)", "Desi (देशी)"],
+            "Jowar (ज्वारी)": ["Maldandi (मालदांडी)", "Shalu (शाळू)", "Hybrid (हायब्रीड)", "Pivala (पिवळा)"],
+            "Tur (तूर)": ["Red (लाल)", "White (पांढरी)", "Maruti (मारुती)", "Asha (आशा)"],
+            "Moong (मूंग)": ["Shining (चमकदार)", "Medium (मध्यम)", "Chamki (चमकी)"],
+            "Soybean (सोयाबीन)": ["Yellow (पिवळा)", "Black (काळा)", "JS335", "MACS"],
+            "Onion (कांदा)": ["Red (लाल)", "Light Red (हलका लाल)", "White (पांढरा)", "Gavthi (गावठी)"],
+            "Cotton (कापूस)": ["LRA", "Mech", "Bunny", "Brahma"],
+            "Bajra (बाजरी)": ["Desi (देशी)", "Hybrid (हायब्रीड)"],
+            "Maize (मका)": ["Yellow (पिवळा)", "White (पांढरा)"],
+            "Other (इतर)": []
+        };
+
+        // Store selected commodities as array of {main, sub}
+        let selectedCommodities = [];
+
+        function renderCommodityDropdowns() {
+            const mainSelect = document.getElementById('commodity_main');
+            mainSelect.innerHTML = '<option value="">Select Commodity...</option>';
+            Object.keys(commoditiesData).forEach(comm => {
+                const opt = document.createElement('option');
+                opt.value = comm;
+                opt.textContent = comm;
+                mainSelect.appendChild(opt);
+            });
+        }
+
+        function onCommodityMainChange() {
+            const mainVal = document.getElementById('commodity_main').value;
+            const subGroup = document.getElementById('sub_commodity_group');
+            const subSelect = document.getElementById('commodity_sub');
+            const addBtn = document.getElementById('btn_add_commodity');
+
+            if (!mainVal) {
+                subGroup.style.display = 'none';
+                addBtn.disabled = true;
+                return;
+            }
+
+            const subs = commoditiesData[mainVal];
+            if (subs && subs.length > 0) {
+                subSelect.innerHTML = '<option value="">Select Subtype...</option>';
+                subs.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s;
+                    opt.textContent = s;
+                    subSelect.appendChild(opt);
+                });
+                subGroup.style.display = '';
+            } else {
+                subGroup.style.display = 'none';
+            }
+            addBtn.disabled = false;
+        }
+
+        function addCommodityTag() {
+            const mainVal = document.getElementById('commodity_main').value;
+            if (!mainVal) return;
+            const subVal = document.getElementById('commodity_sub').value;
+
+            // Check for duplicate
+            const exists = selectedCommodities.some(c => c.main === mainVal && c.sub === subVal);
+            if (exists) { return; }
+
+            selectedCommodities.push({ main: mainVal, sub: subVal });
+            renderCommodityTags();
+
+            // Reset dropdowns
+            document.getElementById('commodity_main').value = '';
+            document.getElementById('commodity_sub').value = '';
+            document.getElementById('sub_commodity_group').style.display = 'none';
+            document.getElementById('btn_add_commodity').disabled = true;
+        }
+
+        function removeCommodityTag(index) {
+            selectedCommodities.splice(index, 1);
+            renderCommodityTags();
+        }
+
+        function renderCommodityTags() {
+            const container = document.getElementById('commodity_tags');
+            const placeholder = document.getElementById('tags_placeholder');
+
+            if (selectedCommodities.length === 0) {
+                container.innerHTML = '<span class="commodity-tags-empty" id="tags_placeholder">No commodities selected yet</span>';
+                return;
+            }
+
+            let html = '';
+            selectedCommodities.forEach((c, i) => {
+                const subText = c.sub ? ` <span class="tag-sub">· ${c.sub}</span>` : '';
+                html += `<span class="commodity-tag">
+                    ${c.main}${subText}
+                    <span class="tag-remove" onclick="removeCommodityTag(${i})" title="Remove">×</span>
+                </span>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function getSelectedCommodities() {
+            return selectedCommodities.map(c => {
+                return c.sub ? `${c.main} - ${c.sub}` : c.main;
+            }).join('\n');
+        }
+
+        function resetCommoditySelection() {
+            selectedCommodities = [];
+            renderCommodityTags();
+            document.getElementById('commodity_main').value = '';
+            document.getElementById('commodity_sub').value = '';
+            document.getElementById('sub_commodity_group').style.display = 'none';
+            document.getElementById('btn_add_commodity').disabled = true;
+        }
+
+        function closeModal() { document.getElementById('printModal').classList.remove('active'); }
+
+        function incrementAndSaveRST() {
+            const rstEl = document.getElementById('display-rst');
+            let num = parseInt(rstEl.innerText.trim().split('-')[2]) + 1;
+            rstEl.innerText = `RST-2024-${String(num).padStart(4, '0')}`;
+            localStorage.setItem('currentRST', rstEl.innerText.trim());
+        }
+
+        function displayEntryInModal(entryData) {
+            document.getElementById('m_rst').innerText = entryData.rst;
+            document.getElementById('m_date').innerText = entryData.date;
+            document.getElementById('m_vehicle').innerText = entryData.vehicle;
+            document.getElementById('m_farmer').innerText = entryData.farmer;
+            document.getElementById('m_village').innerText = entryData.village;
+            document.getElementById('m_agent').innerText = entryData.agent;
+            document.getElementById('m_commodity').innerText = entryData.commodity;
+            document.getElementById('printModal').classList.add('active');
+        }
+
+        function loadRecentEntryFromStorage(rst) {
+            let allEntries = JSON.parse(localStorage.getItem('farmerEntries') || '{}');
+            if (allEntries[rst]) {
+                displayEntryInModal(allEntries[rst]);
+            }
+        }
+
+        function addRecentEntry() {
+            const rst = document.getElementById('display-rst').innerText.trim();
+            const entryData = {
+                rst: rst,
+                date: document.getElementById('entry_date').value,
+                vehicle: document.getElementById('vehicle_no').value || 'N/A',
+                farmer: document.getElementById('farmer_name').value || 'N/A',
+                village: document.getElementById('farmer_village').value || 'N/A',
+                mobile: document.getElementById('farmer_mobile').value || 'N/A',
+                agent: document.getElementById('agent_name').value || 'N/A',
+                commodity: getSelectedCommodities() || 'N/A'
+            };
+
+            // Update UI Table
+            const tbody = document.getElementById('entries-tbody');
+            const row = document.createElement('tr');
+            row.className = 'table-row';
+            row.innerHTML = `
+                <td style="padding-left:1rem;"><span class="rst-col-title">${rst}</span></td>
+                <td><span class="veh-col-title">${entryData.vehicle}</span></td>
+                <td style="padding-right:1rem;"><span style="font-size:0.75rem; color:#666; display:block; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${entryData.commodity.replace(/\n/g, ', ')}">${entryData.commodity.replace(/\n/g, ', ')}</span></td>
+            `;
+            row.addEventListener('click', function() {
+                loadRecentEntryFromStorage(rst);
+            });
+            tbody.insertBefore(row, tbody.firstChild);
+
+            // Populate Modal
+            displayEntryInModal(entryData);
+
+            // Save to LocalStorage
+            let allEntries = JSON.parse(localStorage.getItem('farmerEntries') || '{}');
+            allEntries[rst] = entryData;
+            localStorage.setItem('farmerEntries', JSON.stringify(allEntries));
+        }
+
+        function loadEntriesFromStorage() {
+            let allEntries = JSON.parse(localStorage.getItem('farmerEntries') || '{}');
+            const tbody = document.getElementById('entries-tbody');
+            
+            // Load entries in reverse order (most recent first)
+            Object.keys(allEntries).reverse().forEach(rst => {
+                const entryData = allEntries[rst];
+                const row = document.createElement('tr');
+                row.className = 'table-row';
+                const commText = entryData.commodity.replace(/\n/g, ', ');
+                row.innerHTML = `
+                    <td style="padding-left:1rem;"><span class="rst-col-title">${rst}</span></td>
+                    <td><span class="veh-col-title">${entryData.vehicle}</span></td>
+                    <td style="padding-right:1rem;"><span style="font-size:0.75rem; color:#666; display:block; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${commText}">${commText}</span></td>
+                `;
+                row.addEventListener('click', function() {
+                    loadRecentEntryFromStorage(rst);
+                });
+                tbody.appendChild(row);
+            });
+        }
+
+        // Load entries and RST on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            renderCommodityDropdowns();
+            // Load last RST from storage
+            const savedRST = localStorage.getItem('currentRST');
+            if (savedRST) {
+                document.getElementById('display-rst').innerText = savedRST;
+            }
+            loadEntriesFromStorage();
+        });
+
+        document.getElementById('gate-entry-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            // Auto-add any pending commodity selection before saving
+            const pendingMain = document.getElementById('commodity_main').value;
+            if (pendingMain) {
+                addCommodityTag();
+            }
+            if (!getSelectedCommodities()) {
+                alert('Please select at least one commodity.');
+                return;
+            }
+            addRecentEntry();
+            incrementAndSaveRST();
+            this.reset();
+            resetCommoditySelection();
+            document.getElementById('entry_date').value = new Date().toLocaleString('en-IN', {day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'});
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>License Master - APMC Admin</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;700;900&family=Work+Sans:wght@400;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --primary: #004493;
+            --surface: #f8f9fa;
+            --on-surface: #191c1d;
+            --slate-100: #f1f5f9;
+            --slate-200: #e2e8f0;
+            --slate-600: #475569;
+            --green-600: #16a34a;
+            --red-600: #dc2626;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Work Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--surface);
+            color: var(--on-surface);
+            display: flex;
+        }
+
+        .sidebar {
+            width: 260px;
+            height: 100vh;
+            background: white;
+            border-right: 1px solid var(--slate-200);
+            position: fixed;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--slate-200);
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nav-link {
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            color: var(--slate-600);
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .nav-link.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .main-content {
+            margin-left: 260px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .headline {
+            font-family: 'Public Sans', sans-serif;
+            color: var(--primary);
+            margin-bottom: 2rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 1.8rem;
+        }
+
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border-top: 4px solid var(--primary);
+            margin-bottom: 2rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--slate-600);
+            text-transform: uppercase;
+        }
+
+        input,
+        select {
+            padding: 0.8rem;
+            border: 1px solid var(--slate-200);
+            border-radius: 0.375rem;
+            font-size: 1rem;
+            outline: none;
+            background: var(--slate-100);
+        }
+
+        input:focus {
+            border-bottom: 2px solid var(--primary);
+            background: white;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th {
+            background: var(--slate-100);
+            padding: 1rem;
+            text-align: left;
+            font-size: 0.85rem;
+            color: var(--slate-600);
+            text-transform: uppercase;
+            border-bottom: 2px solid var(--slate-200);
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--slate-200);
+            font-weight: 500;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .status-active {
+            background: #dcfce3;
+            color: var(--green-600);
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2 style="color: var(--primary); font-family: 'Public Sans', sans-serif; font-weight: 900;">APMC Admin</h2>
+            <p style="font-size: 0.8rem; color: var(--slate-600);">Estate & Legal Dept</p>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="license_master.html" class="nav-link active"><span class="material-symbols-outlined">badge</span>
+                Trader License</a>
+            <a href="estate_management.html" class="nav-link"><span class="material-symbols-outlined">storefront</span>
+                Shop Rent</a>
+            <a href="master_ledger.html" class="nav-link"><span class="material-symbols-outlined">menu_book</span>
+                Master Ledger</a>
+            <a href="bhav_patrak.html" class="nav-link"><span class="material-symbols-outlined">trending_up</span> Bhav
+                Patrak</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <h1 class="headline">Trader Registration (परवाना नोंदणी)</h1>
+
+        <div class="card">
+            <h3 style="margin-bottom: 1.5rem; color: var(--slate-600);">New License Entry</h3>
+            <div class="form-grid">
+                <div class="input-group">
+                    <label>License No (परवाना क्र.)</label>
+                    <input type="text" id="licenseNo" placeholder="APMC/2024/...">
+                </div>
+                <div class="input-group">
+                    <label>Firm Name (संस्थेचे नाव)</label>
+                    <input type="text" id="firmName" placeholder="e.g. Shivam Trading Co.">
+                </div>
+                <div class="input-group">
+                    <label>Proprietor Name (मालकाचे नाव)</label>
+                    <input type="text" id="ownerName" placeholder="Owner Full Name">
+                </div>
+                <div class="input-group">
+                    <label>Security Deposit Paid (₹)</label>
+                    <input type="number" id="deposit" placeholder="50000">
+                </div>
+            </div>
+            <button class="btn" onclick="saveTrader()"><span class="material-symbols-outlined">save</span> Register
+                Trader</button>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-bottom: 1rem; color: var(--slate-600);">Active Licensed Traders</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>License No</th>
+                        <th>Firm Name</th>
+                        <th>Owner Name</th>
+                        <th>Deposit (Anamat)</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="traderTableBody">
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        function saveTrader() {
+            const license = document.getElementById('licenseNo').value.trim();
+            const name = document.getElementById('firmName').value.trim();
+            const owner = document.getElementById('ownerName').value.trim();
+            const deposit = document.getElementById('deposit').value.trim();
+
+            if (!license || !name) { alert("License No and Firm Name are required!"); return; }
+
+            const trader = { license, name, owner, deposit, status: 'Active', date: new Date().toLocaleDateString() };
+            let traders = JSON.parse(localStorage.getItem('trader_master') || '[]');
+            traders.push(trader);
+            localStorage.setItem('trader_master', JSON.stringify(traders));
+
+            document.querySelectorAll('input').forEach(input => input.value = '');
+            renderTable();
+        }
+
+        function renderTable() {
+            const traders = JSON.parse(localStorage.getItem('trader_master') || '[]');
+            const tbody = document.getElementById('traderTableBody');
+            tbody.innerHTML = traders.map(t => `
+                <tr>
+                    <td style="font-family: monospace;">${t.license}</td>
+                    <td style="font-weight: bold; color: var(--primary);">${t.name}</td>
+                    <td>${t.owner}</td>
+                    <td style="font-weight: bold;">₹ ${parseInt(t.deposit).toLocaleString('en-IN')}</td>
+                    <td><span class="status-badge status-active">ACTIVE</span></td>
+                </tr>
+            `).join('');
+        }
+        window.onload = renderTable;
+    </script>
+</body>
+
+</html>

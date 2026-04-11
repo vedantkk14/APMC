@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Outward Gate Pass (Javak)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;700;900&family=Work+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <style>
+        /* Same UI CSS Variables */
+        :root {
+            --background: #f8f9fa; --surface: #f8f9fa; --on-primary: #ffffff; --primary: #004493; --primary-fixed: #d8e2ff;
+            --on-surface: #191c1d; --surface-container: #edeeef; --surface-container-lowest: #ffffff;
+            --outline-variant: #c3c6d6; --secondary: #4c616c; --slate-100: #f1f5f9; --slate-200: #e2e8f0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: var(--surface); font-family: 'Work Sans', sans-serif; color: var(--on-surface); }
+        .headline { font-family: 'Public Sans', sans-serif; }
+        .top-nav { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 1.5rem; height: 4rem; position: sticky; top: 0; z-index: 50; background-color: #ffffff; border-bottom: 1px solid var(--slate-200); }
+        .nav-brand { font-size: 1.25rem; font-weight: 900; color: var(--primary); }
+        
+        /* Sidebar Styles */
+        .app-wrapper { display: flex; min-height: calc(100vh - 4rem); }
+        .sidebar { display: none; flex-direction: column; width: 256px; border-right: 1px solid var(--slate-200); background-color: var(--slate-100); flex-shrink: 0; position: fixed; height: calc(100vh - 4rem); left: 0; top: 4rem; z-index: 40; }
+        @media (min-width: 768px) { .sidebar { display: flex; } }
+        .sidebar-header { padding: 1.5rem; border-bottom: 1px solid var(--slate-200); }
+        .sidebar-title { font-size: 1.25rem; font-weight: 700; color: var(--primary); }
+        .sidebar-nav { flex: 1; padding: 0 0.5rem; display: flex; flex-direction: column; gap: 0.25rem; }
+        .sidebar-link { padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.75rem; border-radius: 0.375rem; font-weight: 600; font-size: 0.875rem; }
+        .sidebar-link.active { background-color: var(--primary); color: #ffffff; }
+        
+        .btn-past-pass { background-color: #16a34a; color: white; padding: 1rem; border-radius: 0.5rem; font-weight: 700; width: 90%; margin: 1rem auto; display: block; cursor: pointer; border: none; font-size: 0.875rem; transition: background-color 0.2s; }
+        .btn-past-pass:hover { background-color: #15803d; }
+        
+        .main-content { flex: 1; padding: 2rem; max-width: 100%; }
+        @media (min-width: 768px) { .main-content { margin-left: 256px; } }
+        .main-grid { display: grid; grid-template-columns: 1fr; gap: 2.5rem; }
+        @media (min-width: 1024px) { .main-grid { grid-template-columns: 4fr 6fr; } }
+        
+        .form-section { background-color: var(--surface-container-lowest); padding: 2rem; border-radius: 0.75rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); margin-bottom: 2rem; border-left: 4px solid var(--primary); }
+        .input-group { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.25rem; }
+        .input-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+        .form-control { width: 100%; background-color: var(--slate-100); border: none; padding: 1rem; font-size: 1.125rem; font-weight: 700; outline: none; border-radius: 0.375rem;}
+        .form-control:focus { border-bottom: 2px solid var(--primary); background-color: white; }
+        .btn-fetch { background-color: var(--primary); color: white; padding: 1rem; border-radius: 0.5rem; font-weight: 700; width: 100%; margin-top: 1rem; cursor: pointer; }
+
+        /* The Printed Gate Pass Formatting */
+        .receipt-container { background-color: white; padding: 3rem; border-radius: 0.5rem; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); border-top: 8px solid #f59e0b; display: none; color: #000; }
+        .receipt-container.active { display: block; }
+        
+        .pass-header { text-align: center; margin-bottom: 2rem; }
+        .pass-title { font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; }
+        .pass-subtitle { font-size: 1.25rem; font-weight: bold; margin-bottom: 1rem; }
+        .pass-date-right { text-align: right; font-weight: bold; margin-bottom: 2rem; }
+
+        .pass-paragraph { font-size: 1.15rem; line-height: 2.2; text-align: justify; text-justify: inter-word; font-weight: 500; }
+        .fill-blank { font-weight: 800; border-bottom: 2px dashed #000; padding: 0 0.5rem; color: var(--primary); display: inline-block; min-width: 50px; text-align: center; }
+
+        .pass-footer { margin-top: 4rem; text-align: right; font-weight: bold; font-size: 1.15rem; padding-right: 2rem; }
+
+        .btn-print { background-color: #f59e0b; color: white; width: 100%; padding: 1.25rem; border-radius: 0.5rem; font-size: 1.125rem; font-weight: 900; text-transform: uppercase; margin-top: 2rem; cursor: pointer; border: none;}
+        
+        /* Modal Styles */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-overlay.active { display: flex; }
+        
+        /* Past Gate Passes Modal */
+        .modal-content-wrapper { background-color: white; padding: 2rem; border-radius: 0.75rem; max-width: 900px; width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .modal-title-text { font-size: 1.5rem; font-weight: 900; color: var(--primary); }
+        .btn-close-modal { background: none; color: var(--on-surface); font-size: 1.5rem; cursor: pointer; font-weight: 700; border: none; }
+        
+        .past-passes-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .past-passes-table th { background-color: var(--primary); color: white; padding: 1rem; text-align: left; font-weight: 700; }
+        .past-passes-table td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--slate-200); }
+        .past-passes-table tbody tr { cursor: pointer; transition: background-color 0.2s; }
+        .past-passes-table tbody tr:hover { background-color: var(--slate-100); }
+        .past-passes-empty { text-align: center; padding: 2rem; color: var(--on-surface); font-size: 0.95rem; }
+        .modal-dialog { background-color: white; border-radius: 0.75rem; padding: 2rem; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+        .modal-title { font-size: 1.25rem; font-weight: 900; margin-bottom: 1.5rem; color: var(--primary); }
+        .modal-content { margin-bottom: 1.5rem; }
+        .entry-item { background-color: var(--slate-100); padding: 1rem; border-radius: 0.375rem; margin-bottom: 0.75rem; display: flex; align-items: flex-start; gap: 1rem; border: 1px solid var(--outline-variant); }
+        .entry-item input[type="checkbox"] { margin-top: 0.25rem; cursor: pointer; width: 20px; height: 20px; }
+        .entry-item label { cursor: pointer; flex: 1; }
+        .entry-info { font-size: 0.95rem; color: var(--on-surface); }
+        .entry-info strong { color: var(--primary); }
+        .modal-buttons { display: flex; gap: 1rem; justify-content: flex-end; }
+        .btn-modal { padding: 0.75rem 1.5rem; border-radius: 0.375rem; font-weight: 700; border: none; cursor: pointer; font-size: 1rem; }
+        .btn-modal.primary { background-color: var(--primary); color: white; }
+        .btn-modal.secondary { background-color: var(--slate-200); color: var(--on-surface); }
+        
+        @media print {
+            body * { visibility: hidden; }
+            .receipt-container, .receipt-container * { visibility: visible; }
+            .receipt-container { position: absolute; left: 0; top: 0; width: 100%; border: none; box-shadow: none; }
+            .btn-print { display: none; }
+            .fill-blank { color: #000; } /* Print in black ink */
+        }
+    </style>
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="nav-brand">APMC Market</div>
+    </nav>
+
+    <div class="app-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="sidebar-title">Outward Pass</h1>
+            </div>
+            <nav class="sidebar-nav">
+                <a class="sidebar-link active" href="javaak.html" style="text-decoration: none;">
+                    <span class="material-symbols-outlined">description</span>
+                    <span>Javak (Pass)</span>
+                </a>
+                <a class="sidebar-link" href="gate_exit.html" style="text-decoration: none; color: var(--on-surface-variant);">
+                    <span class="material-symbols-outlined">table_view</span>
+                    <span>Gate Exit Log</span>
+                </a>
+            </nav>
+            
+            <button class="btn-past-pass" onclick="openPastPassesModal()">📋 Past Passes</button>
+        </aside>
+
+        <main class="main-content">
+        <header class="page-header" style="margin-bottom: 2rem;">
+            <h1 class="page-title headline">Outward Pass (जावक)</h1>
+        </header>
+
+        <div class="main-grid">
+            <div class="grid-left">
+                <section class="form-section">
+                    <h2 style="margin-bottom: 1rem;">1. Fetch Pending Cargo</h2>
+                    <div class="input-group">
+                        <label class="input-label">Select Trader (Vyapari)</label>
+                        <select class="form-control" id="traderSelect">
+                            <option value="">-- Select Trader --</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Transport Vehicle No. (Outward Truck)</label>
+                        <input class="form-control" id="outward_vehicle" list="vehicle_list" style="text-transform: uppercase;" placeholder="e.g. MH-20-EL-6848" type="text" />
+                        <datalist id="vehicle_list"></datalist>
+                    </div>
+                    <button class="btn-fetch" onclick="generateJavak()">Generate Javak Pass</button>
+                </section>
+            </div>
+
+            <div class="grid-right">
+                <div class="receipt-container" id="printable-receipt">
+                    <div class="pass-header">
+                        <div class="pass-title">उच्चतम कृषी उत्पन्न बाजार समिती, माजलगाव जिल्हा बीड.</div>
+                        <div class="pass-subtitle">-:- गेट पास -:-</div>
+                    </div>
+                    <div class="pass-date-right">दिनांक :- <span class="fill-blank" id="p_date"></span></div>
+
+                    <div class="pass-paragraph">
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;कृषी उत्पन्न बाजार समिती, माजलगाव जिल्हा बीड च्या मुख्य बाजार आवार फुलेपिंपळगाव मार्केट यार्डातून आडत्ये मे. <span class="fill-blank" id="p_adatya"></span> यांच्याकडून श्री. <span class="fill-blank" id="p_trader"></span> यांनी खरेदी केलेला त्यांचा शेतीमाल क्विंटल <span class="fill-blank" id="p_weight"></span> वाहन क्र. <span class="fill-blank" id="p_vehicle"></span> दिनांक <span class="fill-blank" id="p_date_body"></span> रोजी ठिक <span class="fill-blank" id="p_time"></span> वाजता या बाजार समितीचे मार्केट यार्डातून बाहेरील बाजार पेठेत विक्रीसाठी घेवुन जात आहेत. 
+                        <br><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;करीता त्यांचे दिनांक <span class="fill-blank" id="p_date_footer"></span> रोजीचे अर्जानुसार कार्यालयीन रेकॉर्डप्रमाणे त्यांना ही गेटपास देण्यात येत आहे.
+                    </div>
+
+                    <table class="pass-detail-table" style="width:100%; border-collapse: collapse; margin-top: 2rem; font-size: 1rem; text-align:center; border: 1px solid #000;">
+                        <thead>
+                            <tr>
+                                <th colspan="8" style="padding: 0.5rem; border: 1px solid #000; font-size: 1.25rem;">गेट एक्झिट</th>
+                            </tr>
+                            <tr>
+                                <th style="padding: 0.5rem; border: 1px solid #000;">दिनांक</th>
+                                <th style="padding: 0.5rem; border: 1px solid #000;">व्यापाऱ्याचे नाव</th>
+                                <th style="padding: 0.5rem; border: 1px solid #000;">बुक नंबर</th>
+                                <th style="padding: 0.5rem; border: 1px solid #000;">बिल नंबर</th>
+                                <th style="padding: 0.5rem; border: 1px solid #000;">वाहन क्रमांक</th>
+                                <th style="padding: 0.5rem; border: 1px solid #000;">शेतीमाल</th>
+                                <th style="padding: 0.5rem; border: 1px solid #000;">वजन</th>
+                                <th style="padding: 0.5rem; border: 1px solid #000;">खरेदी तारीख पासून पर्यंत</th>
+                            </tr>
+                        </thead>
+                        <tbody id="p_data_table_body">
+                            <!-- Dynamic rows via JavaScript -->
+                        </tbody>
+                    </table>
+
+                    <div class="pass-footer">
+                        सचिव<br>
+                        कृषी उत्पन्न बाजार समिती<br>
+                        माजलगाव जि. बीड
+                    </div>
+
+                    <button class="btn-print" onclick="printAndComplete()">Print & Clear Gate</button>
+                </div>
+            </div>
+        </div>
+    </main>
+    </div>
+
+    <!-- Past Gate Passes Modal -->
+    <div class="modal-overlay" id="pastPassesModal">
+        <div class="modal-content-wrapper">
+            <div class="modal-header">
+                <h2 class="modal-title-text">📋 Generated Gate Passes</h2>
+                <button class="btn-close-modal" onclick="closePastPassesModal()">✕</button>
+            </div>
+            <table class="past-passes-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Trader Name</th>
+                        <th>Vehicle No.</th>
+                        <th>Qty (Quintals)</th>
+                        <th>Entries</th>
+                    </tr>
+                </thead>
+                <tbody id="past-passes-tbody">
+                    <tr><td colspan="5" class="past-passes-empty">No generated passes yet</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Entry Selection Modal -->
+    <div class="modal-overlay" id="entrySelectionModal">
+        <div class="modal-dialog">
+            <h2 class="modal-title">Select Entries for Outward Pass</h2>
+            <div class="modal-content" id="entryListContainer">
+                <!-- Entries will be dynamically inserted here -->
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-modal secondary" onclick="closeSelectionModal()">Cancel</button>
+                <button class="btn-modal primary" onclick="proceedWithSelected()">Generate Pass</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let matchedTransactions = [];
+        let selectedTransactions = [];
+
+        function openPastPassesModal() {
+            loadPastPassesTable();
+            document.getElementById('pastPassesModal').classList.add('active');
+        }
+
+        function closePastPassesModal() {
+            document.getElementById('pastPassesModal').classList.remove('active');
+        }
+
+        function loadPastPassesTable() {
+            const clearedTx = JSON.parse(localStorage.getItem('clearedTransactions') || '{}');
+            const tbody = document.getElementById('past-passes-tbody');
+            tbody.innerHTML = '';
+
+            const generatedPasses = {};
+            
+            // Group passes by generation key
+            for (const lotId in clearedTx) {
+                const tx = clearedTx[lotId];
+                if (tx.javakGenerated) {
+                    const passKey = `${tx.date}_${tx.trader}_${tx.outwardVehicle || 'N/A'}`;
+                    if (!generatedPasses[passKey]) {
+                        generatedPasses[passKey] = {
+                            date: tx.date,
+                            trader: tx.trader,
+                            vehicle: tx.outwardVehicle || 'N/A',
+                            totalWeight: 0,
+                            entries: []
+                        };
+                    }
+                    const weight = tx.netWeightKg || parseFloat(tx.weightKg) || 0;
+                    generatedPasses[passKey].totalWeight += weight;
+                    generatedPasses[passKey].entries.push(lotId);
+                }
+            }
+
+            if (Object.keys(generatedPasses).length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="past-passes-empty">No generated passes yet</td></tr>';
+                return;
+            }
+
+            Object.keys(generatedPasses).reverse().forEach(passKey => {
+                const pass = generatedPasses[passKey];
+                const row = document.createElement('tr');
+                const totalQuintals = (pass.totalWeight / 100).toFixed(2);
+                const entryCount = pass.entries.length;
+                row.innerHTML = `
+                    <td>${pass.date || 'N/A'}</td>
+                    <td><strong>${pass.trader}</strong></td>
+                    <td>${pass.vehicle}</td>
+                    <td>${totalQuintals} qtl</td>
+                    <td>${entryCount} lot(s)</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('pastPassesModal');
+            const modalContent = document.querySelector('.modal-content-wrapper');
+            if (event.target === modal) {
+                closePastPassesModal();
+            }
+        });
+
+        // Close modal with ESC key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closePastPassesModal();
+            }
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const traderSelect = document.getElementById('traderSelect');
+            const vehicleList = document.getElementById('vehicle_list');
+            const uniqueTraders = new Set();
+            const uniqueVehicles = new Set();
+            
+            // Fallback Defaults to ensure it works even if empty
+            uniqueTraders.add('Shivam Trading Co.');
+            uniqueTraders.add('Omkar Agro');
+            uniqueTraders.add('Balaji Enterprises');
+
+            // Load traders and vehicles from clearedTransactions (inward transactions)
+            const clearedTx = JSON.parse(localStorage.getItem('clearedTransactions') || '{}');
+            for (const lotId in clearedTx) {
+                if (!clearedTx[lotId].javakGenerated) {
+                    if (clearedTx[lotId].trader) uniqueTraders.add(clearedTx[lotId].trader);
+                }
+                if (clearedTx[lotId].vehicle && clearedTx[lotId].vehicle !== 'N/A') {
+                    uniqueVehicles.add(clearedTx[lotId].vehicle.toUpperCase());
+                }
+            }
+
+            // Fallback check in biddingResults
+            const biddingResults = JSON.parse(localStorage.getItem('biddingResults') || '{}');
+            for (const lot in biddingResults) {
+                if (biddingResults[lot].winningBidder) uniqueTraders.add(biddingResults[lot].winningBidder);
+            }
+
+            // Extract generic vehicles from farmer entries
+            const farmerEntries = JSON.parse(localStorage.getItem('farmerEntries') || '{}');
+            for (const rst in farmerEntries) {
+                if (farmerEntries[rst].vehicle) {
+                    uniqueVehicles.add(farmerEntries[rst].vehicle.toUpperCase());
+                }
+            }
+            
+            // Load traders from license_master (registered traders)
+            const registeredTraders = JSON.parse(localStorage.getItem('trader_master') || '[]');
+            registeredTraders.forEach(trader => {
+                if (trader.name) uniqueTraders.add(trader.name);
+            });
+            
+            // Add all traders to dropdown
+            uniqueTraders.forEach(trader => {
+                if (trader && trader.trim() !== '' && trader !== 'N/A') {
+                    const option = document.createElement('option');
+                    option.value = trader; option.text = trader; traderSelect.add(option);
+                }
+            });
+
+            // Add all vehicles to datalist for selection
+            uniqueVehicles.forEach(v => {
+                if (v && v.trim() !== '') {
+                    const option = document.createElement('option');
+                    option.value = v; vehicleList.appendChild(option);
+                }
+            });
+        });
+
+        function generateJavak() {
+            const trader = document.getElementById('traderSelect').value;
+            const traderCmp = trader.trim().toLowerCase();
+            const vehicle = document.getElementById('outward_vehicle').value.trim().toUpperCase();
+
+            if (!trader || !vehicle) { alert("Please select Trader and enter Vehicle No."); return; }
+
+            const clearedTx = JSON.parse(localStorage.getItem('clearedTransactions') || '{}');
+            matchedTransactions = [];
+
+            for (const lotId in clearedTx) {
+                const tx = clearedTx[lotId];
+                if (tx.trader && tx.trader.trim().toLowerCase() === traderCmp && !tx.javakGenerated) {
+                    matchedTransactions.push({...tx, lotId: lotId});
+                }
+            }
+
+            // Dynamically scan active auctions for pending cargo not yet moved to Hishobpatti
+            const allLots = JSON.parse(localStorage.getItem('auctionLots') || '{}');
+            const biddingResults = JSON.parse(localStorage.getItem('biddingResults') || '{}');
+            const farmerEntries = JSON.parse(localStorage.getItem('farmerEntries') || '{}');
+            const completedWeighings = JSON.parse(localStorage.getItem('completedWeighings') || '[]');
+
+            for (const baseLotId in allLots) {
+                let lotData = allLots[baseLotId];
+                const rst = lotData.rst;
+                
+                let sales = lotData.sales || [];
+                const bidData = biddingResults[baseLotId];
+
+                if (sales.length === 0) {
+                    if (lotData.winningTrader && lotData.ratePerQuintal) {
+                        sales = [{ trader: lotData.winningTrader, rate: lotData.ratePerQuintal, quantity: lotData.quantity || lotData.bags, scale: lotData.scale }];
+                    } else if (bidData && bidData.lockedPrice) {
+                        sales = [{ trader: bidData.winningBidder, rate: bidData.lockedPrice, quantity: bidData.saleQty || lotData.quantity || lotData.bags, scale: bidData.scale }];
+                    }
+                }
+
+                sales.forEach((sale, index) => {
+                    if (sale.trader && sale.trader.trim().toLowerCase() === traderCmp) {
+                        const simulatedId = sales.length > 1 ? `${baseLotId}-${index + 1}` : baseLotId;
+                        
+                        // Ensure we don't duplicate existing cleared cargo
+                        if (clearedTx[simulatedId] || clearedTx[baseLotId] || matchedTransactions.find(m => m.lotId === simulatedId || m.lotId === baseLotId)) {
+                            return; 
+                        }
+
+                        let weightKg = 0;
+                        const totalQuantity = lotData.quantity || lotData.bags || 1;
+                        if (sale.scale === 'Quintal' && sale.quantity) {
+                            weightKg = sale.quantity * 100;
+                        } else {
+                            const weighingRecord = completedWeighings.find(w => w.rst === rst);
+                            const gateData = farmerEntries[rst] || {};
+                            const totalWeight = (weighingRecord && weighingRecord.totalNet) ? weighingRecord.totalNet : (gateData.net || gateData.gross || 0);
+                            weightKg = (totalWeight / totalQuantity) * sale.quantity;
+                        }
+
+                        matchedTransactions.push({
+                            lotId: simulatedId,
+                            baseLotId: baseLotId,
+                            agent: lotData.agent || '-',
+                            trader: sale.trader,
+                            commodity: lotData.commodity || lotData.commodityName || '-',
+                            ratePerQuintal: parseFloat(sale.rate),
+                            weightKg: parseFloat(weightKg),
+                            netWeightKg: parseFloat(weightKg),
+                            date: new Date().toLocaleDateString('en-IN', {day: '2-digit', month: '2-digit', year: 'numeric'}),
+                            rstNumber: rst,
+                            bookNo: "N/A", 
+                        });
+                    }
+                });
+            }
+
+            if (matchedTransactions.length === 0) { 
+                alert(`No pending cargo found for ${trader}.`); 
+                return; 
+            }
+
+            // If only one entry, proceed directly
+            if (matchedTransactions.length === 1) {
+                selectedTransactions = matchedTransactions;
+                fillAndShowPass();
+                return;
+            }
+
+            // Multiple entries - show selection dialog
+            showSelectionModal();
+        }
+
+        function showSelectionModal() {
+            const container = document.getElementById('entryListContainer');
+            container.innerHTML = '';
+
+            matchedTransactions.forEach((tx, index) => {
+                const entryDiv = document.createElement('div');
+                entryDiv.className = 'entry-item';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `entry-${index}`;
+                checkbox.value = index;
+                checkbox.checked = false;
+
+                const weightToPrint = parseFloat(tx.netWeightKg !== undefined ? tx.netWeightKg : tx.weightKg) || 0;
+
+                const label = document.createElement('label');
+                label.htmlFor = `entry-${index}`;
+                label.className = 'entry-info';
+                label.innerHTML = `
+                    <strong>Lot ID:</strong> ${tx.lotId}<br>
+                    <strong>Book No:</strong> ${tx.bookNo || tx.bookNumber || '-'}<br>
+                    <strong>Weight:</strong> ${weightToPrint} kg (${(weightToPrint / 100).toFixed(2)} quintals)<br>
+                    <strong>Agent:</strong> ${tx.agent}<br>
+                    <strong>Date:</strong> ${tx.date || 'N/A'}
+                `;
+
+                entryDiv.appendChild(checkbox);
+                entryDiv.appendChild(label);
+                container.appendChild(entryDiv);
+            });
+
+            document.getElementById('entrySelectionModal').classList.add('active');
+        }
+
+        function closeSelectionModal() {
+            document.getElementById('entrySelectionModal').classList.remove('active');
+        }
+
+        function proceedWithSelected() {
+            const checkboxes = document.querySelectorAll('#entryListContainer input[type="checkbox"]:checked');
+            
+            if (checkboxes.length === 0) {
+                alert("Please select at least one entry.");
+                return;
+            }
+
+            selectedTransactions = [];
+            checkboxes.forEach(checkbox => {
+                const index = parseInt(checkbox.value);
+                selectedTransactions.push(matchedTransactions[index]);
+            });
+
+            fillAndShowPass();
+            closeSelectionModal();
+        }
+
+        function fillAndShowPass() {
+            if (selectedTransactions.length === 0) return;
+
+            let totalWeightKg = 0;
+            let adatyas = new Set();
+            let tableRowsHTML = '';
+
+            const trader = document.getElementById('traderSelect').value;
+            const vehicle = document.getElementById('outward_vehicle').value.trim().toUpperCase();
+            
+            const today = new Date();
+            const dateStr = today.toLocaleDateString('en-IN', {day: '2-digit', month: '2-digit', year: 'numeric'});
+            const timeStr = today.toLocaleTimeString('en-IN', {hour: '2-digit', minute: '2-digit', hour12: false});
+
+            selectedTransactions.forEach(tx => {
+                // Force parse to float to avoid string concatenation issues
+                const weightToUse = parseFloat(tx.netWeightKg !== undefined ? tx.netWeightKg : tx.weightKg) || 0;
+                totalWeightKg += weightToUse;
+                adatyas.add(tx.agent);
+                
+                // Build row for gate exit table
+                const qtyQuintals = (weightToUse / 100).toFixed(2);
+                const bookNumber = tx.bookNo || tx.bookNumber || '-';
+                const billNumber = tx.billNumber || tx.rstNumber || '-';
+                const commodityName = tx.commodity || tx.commodityName || 'शेतमाल';
+                const purchaseDate = tx.saudaDate || tx.date || tx.aavakDate || dateStr;
+                
+                tableRowsHTML += `
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #000;">${dateStr}</td>
+                        <td style="padding: 0.5rem; border: 1px solid #000;">${trader}</td>
+                        <td style="padding: 0.5rem; border: 1px solid #000;">${bookNumber}</td>
+                        <td style="padding: 0.5rem; border: 1px solid #000;">${billNumber}</td>
+                        <td style="padding: 0.5rem; border: 1px solid #000;">${vehicle}</td>
+                        <td style="padding: 0.5rem; border: 1px solid #000;">${commodityName}</td>
+                        <td style="padding: 0.5rem; border: 1px solid #000;">${qtyQuintals}</td>
+                        <td style="padding: 0.5rem; border: 1px solid #000;">${purchaseDate} ते ${dateStr}</td>
+                    </tr>
+                `;
+            });
+
+            const totalQuintals = (totalWeightKg / 100).toFixed(2);
+            const adatyaNames = Array.from(adatyas).join(', ');
+
+            // Fill Paragraph Blanks
+            document.getElementById('p_date').innerText = dateStr;
+            document.getElementById('p_adatya').innerText = adatyaNames;
+            document.getElementById('p_trader').innerText = trader;
+            document.getElementById('p_weight').innerText = totalQuintals;
+            document.getElementById('p_vehicle').innerText = vehicle;
+            document.getElementById('p_date_body').innerText = dateStr;
+            document.getElementById('p_time').innerText = timeStr;
+            document.getElementById('p_date_footer').innerText = dateStr;
+            
+            // Populate Gate Exit Table
+            document.getElementById('p_data_table_body').innerHTML = tableRowsHTML;
+
+            document.getElementById('printable-receipt').classList.add('active');
+        }
+
+        function printAndComplete() {
+            if (selectedTransactions.length === 0) return;
+            let clearedTx = JSON.parse(localStorage.getItem('clearedTransactions') || '{}');
+            const vehicle = document.getElementById('outward_vehicle').value.trim().toUpperCase();
+            const today = new Date();
+            const dateStr = today.toLocaleDateString('en-IN', {day: '2-digit', month: '2-digit', year: 'numeric'});
+            
+            selectedTransactions.forEach(tx => {
+                if (clearedTx[tx.lotId]) {
+                    clearedTx[tx.lotId].javakGenerated = true;
+                    clearedTx[tx.lotId].outwardVehicle = vehicle;
+                    clearedTx[tx.lotId].javakDate = dateStr;
+                } else {
+                    clearedTx[tx.lotId] = {
+                        ...tx,
+                        javakGenerated: true,
+                        outwardVehicle: vehicle,
+                        javakDate: dateStr
+                    };
+                }
+            });
+            localStorage.setItem('clearedTransactions', JSON.stringify(clearedTx));
+            window.print();
+            setTimeout(() => { window.location.reload(); }, 1000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Gate Exit Report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;700;900&family=Work+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <style>
+        :root {
+            --background: #f8f9fa; --surface: #f8f9fa; --on-primary: #ffffff; --primary: #004493; --primary-fixed: #d8e2ff;
+            --on-surface: #191c1d; --surface-container: #edeeef; --surface-container-lowest: #ffffff;
+            --outline-variant: #c3c6d6; --secondary: #4c616c; --slate-100: #f1f5f9; --slate-200: #e2e8f0;
+            --on-surface-variant: #424654;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: var(--surface); font-family: 'Work Sans', sans-serif; color: var(--on-surface); }
+        a { text-decoration: none; color: inherit; }
+        .headline { font-family: 'Public Sans', sans-serif; }
+        .top-nav { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 1.5rem; height: 4rem; position: sticky; top: 0; z-index: 50; background-color: #ffffff; border-bottom: 1px solid var(--slate-200); }
+        .nav-brand { font-size: 1.25rem; font-weight: 900; color: var(--primary); }
+        
+        .app-wrapper { display: flex; min-height: calc(100vh - 4rem); }
+        .sidebar { display: none; flex-direction: column; width: 256px; border-right: 1px solid var(--slate-200); background-color: var(--slate-100); flex-shrink: 0; position: fixed; height: calc(100vh - 4rem); left: 0; top: 4rem; z-index: 40; }
+        @media (min-width: 768px) { .sidebar { display: flex; } }
+        .sidebar-header { padding: 1.5rem; border-bottom: 1px solid var(--slate-200); }
+        .sidebar-title { font-size: 1.25rem; font-weight: 700; color: var(--primary); }
+        .sidebar-nav { flex: 1; padding: 0.5rem; display: flex; flex-direction: column; gap: 0.5rem; }
+        .sidebar-link { padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.75rem; border-radius: 0.375rem; font-weight: 600; font-size: 0.875rem; color: var(--on-surface-variant); transition: all 0.2s; }
+        .sidebar-link.active { background-color: var(--primary); color: #ffffff; }
+        .sidebar-link:hover:not(.active) { background-color: var(--slate-200); }
+        
+        .main-content { flex: 1; padding: 2rem; max-width: 100%; }
+        @media (min-width: 768px) { .main-content { margin-left: 256px; } }
+        
+        .page-header { margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .page-title { font-size: 1.875rem; font-weight: 900; color: var(--primary); text-transform: uppercase;}
+        .btn-print { background-color: var(--primary); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; transition: opacity 0.2s; }
+        .btn-print:hover { opacity: 0.9; }
+
+        /* Gate Exit Table */
+        .table-container { background-color: var(--surface-container-lowest); padding: 2rem; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow-x: auto; border-top: 4px solid var(--primary); }
+        .gate-exit-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 0.95rem; border: 1px solid #000; min-width: 800px; }
+        .gate-exit-table th, .gate-exit-table td { border: 1px solid #000; padding: 0.75rem; }
+        .gate-exit-table th { background-color: #f8f9fa; font-weight: 700; }
+        .gate-exit-table thead tr:first-child th { font-size: 1.25rem; padding: 1rem; }
+        
+        .empty-state { text-align: center; padding: 3rem; color: var(--on-surface-variant); font-weight: 600; font-size: 1.1rem; }
+        
+        @media print {
+            body * { visibility: hidden; }
+            .table-container, .table-container * { visibility: visible; }
+            .table-container { position: absolute; left: 0; top: 0; width: 100%; box-shadow: none; padding: 0; margin: 0; border-top: none; }
+            .btn-print, .sidebar, .top-nav { display: none !important; }
+            body { background: white; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="nav-brand">APMC Market</div>
+    </nav>
+
+    <div class="app-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="sidebar-title">Outward Pass</h1>
+            </div>
+            <nav class="sidebar-nav">
+                <a class="sidebar-link" href="javaak.html">
+                    <span class="material-symbols-outlined">description</span>
+                    <span>Javak (Pass)</span>
+                </a>
+                <a class="sidebar-link active" href="gate_exit.html">
+                    <span class="material-symbols-outlined">table_view</span>
+                    <span>Gate Exit Log</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="page-header">
+                <h1 class="page-title headline">Gate Exit Report (गेट एक्झिट अहवाल)</h1>
+                <button class="btn-print" onclick="window.print()">
+                    <span class="material-symbols-outlined">print</span> Print Report
+                </button>
+            </header>
+
+            <div class="table-container">
+                <table class="gate-exit-table" id="gateExitTable">
+                    <thead>
+                        <tr>
+                            <th colspan="8">गेट एक्झिट</th>
+                        </tr>
+                        <tr>
+                            <th>दिनांक</th>
+                            <th>व्यापाऱ्याचे नाव</th>
+                            <th>बुक नंबर</th>
+                            <th>बिल नंबर</th>
+                            <th>वाहन क्रमांक</th>
+                            <th>शेतीमाल</th>
+                            <th>वजन</th>
+                            <th>खरेदी तारीख पासून पर्यंत</th>
+                        </tr>
+                    </thead>
+                    <tbody id="gateExitBody">
+                        <!-- Populated via Javascript -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            loadGateExitData();
+        });
+
+        function loadGateExitData() {
+            const tbody = document.getElementById('gateExitBody');
+            const clearedTx = JSON.parse(localStorage.getItem('clearedTransactions') || '{}');
+            let rowsHtml = '';
+            let hasData = false;
+            
+            // Collect all entries where a Javaak pass has been generated!
+            const generatedPasses = [];
+            for (const lotId in clearedTx) {
+                const tx = clearedTx[lotId];
+                // Only showing the data AFTER the Javaak gate entry is done.
+                if (tx.javakGenerated === true) {
+                    generatedPasses.push({ ...tx, lotId });
+                }
+            }
+
+            // Sort by latest javaak generation date/time
+            generatedPasses.sort((a, b) => {
+                const dateA = new Date(a.javakDate || new Date().toISOString());
+                const dateB = new Date(b.javakDate || new Date().toISOString());
+                return dateB - dateA; 
+            });
+
+            if (generatedPasses.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No Gate Exit passes have been generated yet. Please generate from the Javaak Pass page.</td></tr>';
+                return;
+            }
+
+            generatedPasses.forEach(tx => {
+                const weightToUse = parseFloat(tx.netWeightKg !== undefined ? tx.netWeightKg : tx.weightKg) || 0;
+                const qtyQuintals = (weightToUse / 100).toFixed(2);
+                
+                const bookNumber = tx.bookNo || tx.bookNumber || '-';
+                const billNumber = tx.billNumber || tx.rstNumber || '-';
+                const commodityName = tx.commodity || tx.commodityName || 'शेतमाल';
+                const vehicle = tx.outwardVehicle || '-';
+                const trader = tx.trader || '-';
+                
+                // Purchase Date
+                const purchaseDate = tx.saudaDate || tx.date || tx.aavakDate || '-';
+                // Exit Date (When javak was generated)
+                const exitDate = tx.javakDate || new Date().toLocaleDateString('en-IN', {day: '2-digit', month: '2-digit', year: 'numeric'});
+
+                rowsHtml += `
+                    <tr>
+                        <td>${exitDate}</td>
+                        <td>${trader}</td>
+                        <td>${bookNumber}</td>
+                        <td>${billNumber}</td>
+                        <td>${vehicle}</td>
+                        <td>${commodityName}</td>
+                        <td>${qtyQuintals} क्विंटल</td>
+                        <td>${purchaseDate} ते ${exitDate}</td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = rowsHtml;
+        }
+    </script>
+</body>
+</html>

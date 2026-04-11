@@ -1,0 +1,10 @@
+gate nond --> lot_weight.html
+
+dainik aavak nond --> Dainik_aavak.html
+
+दैनिक भाव पत्रक --> bhav_patra.html
+
+बिल --> trader_bill.html
+
+हिशोबपावती --> hishobpatti.html
+
