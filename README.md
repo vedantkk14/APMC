@@ -19,4 +19,4 @@ Since this is a pure frontend project, there are no databases or local server se
 ### 1. Clone the Repository
 Open your terminal or command prompt and run:
 ```bash
-git clone [https://github.com/vedantkk14/APMC.git](https://github.com/vedantkk14/APMC.git)
+git clone https://github.com/vedantkk14/APMC.git
